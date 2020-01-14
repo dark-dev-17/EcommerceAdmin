@@ -24,6 +24,7 @@ namespace EcommerceAdmin2.Controllers
         //[ValidateAntiForgeryToken]
         public ActionResult Create([FromBody]Usuario Usuario)
         {
+            var response = Json(new { }) ;
             if (ModelState.IsValid)
             {
                 int Response;
@@ -39,29 +40,30 @@ namespace EcommerceAdmin2.Controllers
                             if (Response == 0)
                             {
                                 HttpContext.Session.SetString("username", Usuario.User);
-                                return Json(new { Error = false, Description = "Login success" + HttpContext.Session.GetString("username"), Type = "Success", Code = 0 });
+                                response = Json(new { Error = false, Description = "Login success" + HttpContext.Session.GetString("username"), Type = "Success", Code = 0 });
                             }
                             else
                             {
-                                return Json(new { Error = true, Description = "Login failed", Type = "Info", Code = 100 });
+                                response = Json(new { Error = true, Description = "Usuario o contraseña incorrecta", Type = "Info", Code = 100 });
                             }
                         }
                         else
                         {
-                            return Json(new { Error = true, Description = "Login failed", Type = "Warnign", Code = 200 });
+                            response = Json(new { Error = true, Description = "Login failed", Type = "Warnign", Code = 200 });
                         }
-
+                        dBMysql.CloseConnection();
                     }
                 }
                 catch (Exception ex)
                 {
-                    return Json(new { Error = true, Description = ex.ToString(), Type = "Danger", Code = -100 });
+                    response = Json(new { Error = true, Description = "Login failed", Type = "Danger", Code = -100 });
                 }
             }
             else
             {
-                return Json(new { Error = false, Description = "Campos vacios", Type = "Success", Code = 0 });
+                response = Json(new { Error = false, Description = "Campos vacios", Type = "Success", Code = 0 });
             }
+            return response;
 
         }
 
