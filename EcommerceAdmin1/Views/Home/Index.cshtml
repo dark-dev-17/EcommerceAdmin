@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+@using Microsoft.AspNetCore.Http;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            @HttpContextAccessor.HttpContext.Session.GetString("username")
+        </div>
+    </div>
+</div>

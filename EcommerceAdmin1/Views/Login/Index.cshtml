@@ -1,0 +1,100 @@
+﻿@model EcommerceAdmin1.Models.Empleado.Usuario
+@{
+    ViewBag.Title = "Login ";
+}
+
+<section class="login-block" id="Login">
+    <!-- Container-fluid starts -->
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <!-- Authentication card start -->
+                <div class="text-center text-white">
+                    <h2>Grupo Splittel</h2>
+                </div>
+                <div class="auth-box card">
+                    <div class="card-block">
+                        <div class="row m-b-20">
+                            <div class="col-md-12">
+                                <h3 class="text-center">Administrador Ecommerce</h3>
+                            </div>
+                        </div>
+                        <div id="token">@Html.AntiForgeryToken()</div>
+                        <div class="alert alert-danger border-danger" v-if="Error.Error === true">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <i class="icofont icofont-close-line-circled"></i>
+                            </button>
+                            <strong>Danger!</strong> {{ Error.Description }}
+                        </div>
+                        <div class="alert alert-success border-success" v-if="loginSuccess === true">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <i class="icofont icofont-close-line-circled"></i>
+                            </button>
+                            <strong>Success!</strong> Usuario y contrasena correctas
+                        </div>
+                        <form action="" method="" class="md-float-material" v-on:submit.prevent="doLogin">
+                            <div class="form-group form-primary">
+                                <label class="float-label">Usuario</label>
+                                <input type="text" class="form-control" v-model="userData.User" required />
+                                <span class="form-bar"></span>
+                            </div>
+                            <div class="form-group form-primary">
+                                <label class="float-label">Contraseña</label>
+                                <input type="password" class="form-control" v-model="userData.Contrasena" required />
+                                <span class="form-bar"></span>
+                            </div>
+                            <div class="row m-t-30">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">Entrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- end of form -->
+            </div>
+            <!-- end of col-sm-12 -->
+        </div>
+
+        <!-- end of row -->
+    </div>
+    <!-- end of container-fluid -->
+</section>
+@section Scripts {
+    <script>
+        var app = new Vue({
+            el: '#Login',
+            data: {
+                userData: {
+                    User: "",
+                    Contrasena: ""
+                },
+                Error: {
+                    Error: false,
+                    Description: ""
+                },
+                loginSuccess: false,
+                loading: false
+            },
+            methods: {
+                doLogin: function (evt) {
+                    evt.preventDefault();
+                    axios.post('./Login/Create', this.userData).then(response => {
+                        console.log(response.data);
+                        this.Error.Error = response.data.error;
+                        this.Error.Description = response.data.description;
+                        if (response.data.error == false) {
+                            this.loginSuccess = true;
+                        } else {
+                            this.loginSuccess = false;
+                        }
+                    }).catch(error => {
+                        console.log(error)
+                        this.Error.Error = true;
+                        this.Error.Description = error.message;
+                    }).finally(() => this.loading = false)
+                }
+            }
+        })
+    </script>
+}
