@@ -1,4 +1,5 @@
 ﻿using EcommerceAdmin2.Models.Sistema;
+using Microsoft.AspNetCore.Http;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -12,13 +13,13 @@ namespace EcommerceAdmin2.Models.Empleado
     {
         #region Propiedades
         [Required]
-        [Display(Name = "Usuario")]
         public string User { get; set; }
         [Required]
-        [Display(Name = "Contraseña")]
         public string Contrasena { get; set; }
         private DBMysql DBMysql;
         public Response Response { get; private set; }
+        private Empleado Empleado;
+        public int Id { get; private set; }
         #endregion
         #region Constructores
         public Usuario()
@@ -33,13 +34,16 @@ namespace EcommerceAdmin2.Models.Empleado
         #region Metodos
         public int DoLogin()
         {
-            string Statement = string.Format("SELECT * FROM signup where username = '{0}' and password = '{1}';", User, Contrasena);
+            string Statement = string.Format("SELECT ID FROM signup where username = '{0}' and password = '{1}';", User, Contrasena);
             try
             {
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
-                if (DBMysql.CountDataReader(DataReader) >= 1)
+                if (DBMysql.CountDataReader(DataReader) == 1)
                 {
                     Response = new Response { Code = 0, Description = "Login exitoso", Type = "Success" };
+                    Id = (int)DataReader.GetUInt32(0);
+                    
+                    DataReader.Close();
                     return 0;
                 }
                 else
@@ -56,7 +60,11 @@ namespace EcommerceAdmin2.Models.Empleado
             {
                 throw ex;
             }
-
+        }
+        
+        public int GetId()
+        {
+            return Id;
         }
         public void SetConnectionMysql(DBMysql DBMysql)
         {

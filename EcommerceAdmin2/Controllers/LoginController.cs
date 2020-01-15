@@ -15,11 +15,6 @@ namespace EcommerceAdmin2.Controllers
         {
             return View();
         }
-        public ActionResult LoginFailed()
-        {
-            return View();
-        }
-        // POST: Login/Create
         [HttpPost]
         //[ValidateAntiForgeryToken]
         public ActionResult Create([FromBody]Usuario Usuario)
@@ -39,8 +34,8 @@ namespace EcommerceAdmin2.Controllers
                             Response = Usuario.DoLogin();
                             if (Response == 0)
                             {
-                                HttpContext.Session.SetString("username", Usuario.User);
-                                response = Json(new { Error = false, Description = "Login success" + HttpContext.Session.GetString("username"), Type = "Success", Code = 0 });
+                                StartSessions(Usuario.GetId(), dBMysql);
+                                response = Json(new { Error = false, Description = "Login success", Type = "Success", Code = 0 });
                             }
                             else
                             {
@@ -49,14 +44,14 @@ namespace EcommerceAdmin2.Controllers
                         }
                         else
                         {
-                            response = Json(new { Error = true, Description = "Login failed", Type = "Warnign", Code = 200 });
+                            response = Json(new { Error = true, Description = "Ups!!, Por favor vuelve a intentarlo ", Type = "Warnign", Code = 200 });
                         }
                         dBMysql.CloseConnection();
                     }
                 }
                 catch (Exception ex)
                 {
-                    response = Json(new { Error = true, Description = "Login failed", Type = "Danger", Code = -100 });
+                    response = Json(new { Error = true, Description = "Ups!!, Por favor vuelve a intentarlo ", Type = "Danger", Code = -100 });
                 }
             }
             else
@@ -66,12 +61,35 @@ namespace EcommerceAdmin2.Controllers
             return response;
 
         }
-
-        // GET: Login/Edit/5
         public ActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index");
+        }
+        public ActionResult GetSession()
+        {
+            if (HttpContext.Session.GetInt32("User_id") != null)
+            {
+                return Json(new { Error = false, Description = "The session is active", Type = "Success", Code = 0, SessionID = HttpContext.Session.GetInt32("User_id") });
+            }
+            else
+            {
+                return Json(new { Error = true, Description = "Sin sessión activa", Type = "Info", Code = 100 });
+            }
+        }
+        private void StartSessions(int id, DBMysql DBMysql)
+        {
+            using (Empleado Empleado = new Empleado(DBMysql))
+            {
+                Empleado.GetEmpleado(id);
+                HttpContext.Session.SetInt32("USR_IdSplinnet", Empleado.IdSplinnet);
+                HttpContext.Session.SetString("USR_Nombre", Empleado.Nombre);
+                HttpContext.Session.SetString("USR_ApellidoPaterno", Empleado.ApellidoPaterno);
+                HttpContext.Session.SetString("USR_Apellidomaterno", Empleado.Apellidomaterno);
+                HttpContext.Session.SetString("USR_Correo", Empleado.Correo);
+                HttpContext.Session.SetInt32("USR_IdArea", Empleado.IdArea);
+                HttpContext.Session.SetString("USR_Sociedad", Empleado.Sociedad);
+            }
         }
     }
 }

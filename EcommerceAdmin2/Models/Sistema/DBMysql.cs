@@ -81,6 +81,37 @@ namespace EcommerceAdmin2.Models.Sistema
                 throw ex;
             }
         }
+        public int DoQuerySingle(string stattement)
+        {
+            try
+            {
+                //Create Command
+                MySqlCommand cmd = new MySqlCommand(stattement, Connection);
+                //Create a data reader and Execute the command
+                MySqlDataReader dataReader = cmd.ExecuteReader();
+
+                if (dataReader.GetType() == typeof(UInt32))
+                {
+                    return Convert.ToInt32(dataReader.GetUInt32(0));
+                }
+                else if (dataReader.GetType() == typeof(Int32))
+                {
+                    return dataReader.GetInt32(0);
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public int CountDataReader(MySqlDataReader dataReader)
         {
             int count = 0;

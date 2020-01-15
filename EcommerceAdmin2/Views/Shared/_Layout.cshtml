@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EcommerceAdmin2</title>
+    <title>@ViewData["Title"] - Admin Ecom</title>
 
-    <environment exclude="Development">
+    <environment include="Development">
         @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />*@
         <!-- Favicon icon -->
         <link rel="icon" href="~/Template/template/assets/images/favicon.ico" type="image/x-icon">
@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="~/Template/template/assets/css/style.css">
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
-    <environment include="Development">
+    <environment exclude="Development">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
@@ -25,7 +25,9 @@
     </environment>
 </head>
 <body>
+    @using Microsoft.AspNetCore.Http;
 
+    @inject IHttpContextAccessor HttpContextAccessor
     @{var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();}
     @if (controllerName == "Login")
     {
@@ -49,7 +51,7 @@
                         <div class="b-bg">
                             <i class="feather icon-trending-up"></i>
                         </div>
-                        <span class="b-title">Datta Able</span>
+                        <span class="b-title">Admin Ecom</span>
                     </a>
                     <a class="mobile-menu" id="mobile-collapse" href="javascript:"><span></span></a>
                 </div>
@@ -65,15 +67,15 @@
                             <label>UI Element</label>
                         </li>
                         <li data-username="basic components Button Alert Badges breadcrumb Paggination progress Tooltip popovers Carousel Cards Collapse Tabs pills Modal Grid System Typography Extra Shadows Embeds" class="nav-item pcoded-hasmenu">
-                            <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Components</span></a>
+                            <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Ventas</span></a>
                             <ul class="pcoded-submenu">
-                                <li class=""><a href="bc_button.html" class="">Button</a></li>
-                                <li class=""><a href="bc_badges.html" class="">Badges</a></li>
-                                <li class=""><a href="bc_breadcrumb-pagination.html" class="">Breadcrumb & paggination</a></li>
-                                <li class=""><a href="bc_collapse.html" class="">Collapse</a></li>
-                                <li class=""><a href="bc_tabs.html" class="">Tabs & pills</a></li>
-                                <li class=""><a href="bc_typography.html" class="">Typography</a></li>
-                                <li class=""><a href="icon-feather.html" class="">Feather<span class="pcoded-badge label label-danger">NEW</span></a></li>
+                                <li class="nav-item"><a href="@Url.Action("List","BussinesPartner")" class="">Mis Clientes</a></li>
+                            </ul>
+                            <ul class="pcoded-submenu">
+                                <li class="nav-item"><a href="bc_button.html" class="">Seguimiento Pedidos</a></li>
+                            </ul>
+                            <ul class="pcoded-submenu">
+                                <li class=""><a href="bc_button.html" class="">Cotizaciones realizadas</a></li>
                             </ul>
                         </li>
                         <li class="nav-item pcoded-menu-caption">
@@ -82,26 +84,6 @@
                         <li data-username="form elements advance componant validation masking wizard picker select" class="nav-item">
                             <a href="form_elements.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Form elements</span></a>
                         </li>
-                        <li data-username="Table bootstrap datatable footable" class="nav-item active">
-                            <a href="tbl_bootstrap.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-server"></i></span><span class="pcoded-mtext">Table</span></a>
-                        </li>
-                        <li class="nav-item pcoded-menu-caption">
-                            <label>Chart & Maps</label>
-                        </li>
-                        <li data-username="Charts Morris" class="nav-item"><a href="chart-morris.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-pie-chart"></i></span><span class="pcoded-mtext">Chart</span></a></li>
-                        <li data-username="Maps Google" class="nav-item"><a href="map-google.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-map"></i></span><span class="pcoded-mtext">Maps</span></a></li>
-                        <li class="nav-item pcoded-menu-caption">
-                            <label>Pages</label>
-                        </li>
-                        <li data-username="Authentication Sign up Sign in reset password Change password Personal information profile settings map form subscribe" class="nav-item pcoded-hasmenu">
-                            <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i class="feather icon-lock"></i></span><span class="pcoded-mtext">Authentication</span></a>
-                            <ul class="pcoded-submenu">
-                                <li class=""><a href="auth-signup.html" class="" target="_blank">Sign up</a></li>
-                                <li class=""><a href="auth-signin.html" class="" target="_blank">Sign in</a></li>
-                            </ul>
-                        </li>
-                        <li data-username="Sample Page" class="nav-item"><a href="sample-page.html" class="nav-link"><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Sample page</span></a></li>
-                        <li data-username="Disabled Menu" class="nav-item disabled"><a href="javascript:" class="nav-link"><span class="pcoded-micon"><i class="feather icon-power"></i></span><span class="pcoded-mtext">Disabled menu</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -122,7 +104,7 @@
             <a class="mobile-menu" id="mobile-header" href="javascript:">
                 <i class="feather icon-more-horizontal"></i>
             </a>
-            <div class="collapse navbar-collapse">
+            <div class="collapse navbar-collapse" id="app_navBar">
                 <ul class="navbar-nav mr-auto">
                     <li><a href="javascript:" class="full-screen" onclick="javascript:toggleFullScreen()"><i class="feather icon-maximize"></i></a></li>
                     <li class="nav-item dropdown">
@@ -150,7 +132,7 @@
                 <ul class="navbar-nav ml-auto">
                     <li>
                         <div class="dropdown">
-                            <a class="dropdown-toggle" href="javascript:" data-toggle="dropdown"><i class="icon feather icon-bell"></i></a>
+                            <a class="dropdown-toggle" href="javascript:" data-toggle="dropdown">@HttpContextAccessor.HttpContext.Session.GetString("USR_Nombre") @HttpContextAccessor.HttpContext.Session.GetString("USR_ApellidoPaterno") <i class="icon feather icon-bell"></i></a>
                             <div class="dropdown-menu dropdown-menu-right notification">
                                 <div class="noti-head">
                                     <h6 class="d-inline-block m-b-0">Notifications</h6>
@@ -165,7 +147,7 @@
                                     </li>
                                     <li class="notification">
                                         <div class="media">
-                                            <img class="img-radius" src="assets/images/user/avatar-1.jpg" alt="Generic placeholder image">
+                                            <img class="img-radius" src="~/Template/template/assets/images/user/avatar-1.jpg" alt="Generic placeholder image">
                                             <div class="media-body">
                                                 <p><strong>John Doe</strong><span class="n-time text-muted"><i class="icon feather icon-clock m-r-10"></i>30 min</span></p>
                                                 <p>New ticket Added</p>
@@ -177,7 +159,7 @@
                                     </li>
                                     <li class="notification">
                                         <div class="media">
-                                            <img class="img-radius" src="assets/images/user/avatar-2.jpg" alt="Generic placeholder image">
+                                            <img class="img-radius" src="~/Template/template/assets/images/user/avatar-2.jpg" alt="Generic placeholder image">
                                             <div class="media-body">
                                                 <p><strong>Joseph William</strong><span class="n-time text-muted"><i class="icon feather icon-clock m-r-10"></i>30 min</span></p>
                                                 <p>Prchace New Theme and make payment</p>
@@ -186,7 +168,7 @@
                                     </li>
                                     <li class="notification">
                                         <div class="media">
-                                            <img class="img-radius" src="assets/images/user/avatar-3.jpg" alt="Generic placeholder image">
+                                            <img class="img-radius" src="~/Template/template/assets/images/user/avatar-3.jpg" alt="Generic placeholder image">
                                             <div class="media-body">
                                                 <p><strong>Sara Soudein</strong><span class="n-time text-muted"><i class="icon feather icon-clock m-r-10"></i>30 min</span></p>
                                                 <p>currently login</p>
@@ -207,17 +189,17 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right profile-notification">
                                 <div class="pro-head">
-                                    <img src="assets/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
-                                    <span>John Doe</span>
-                                    <a href="auth-signin.html" class="dud-logout" title="Logout">
+                                    <img src="~/Template/template/assets/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
+                                    <span>@HttpContextAccessor.HttpContext.Session.GetString("USR_Nombre") @HttpContextAccessor.HttpContext.Session.GetString("USR_ApellidoPaterno")</span>
+                                    <a href="@Url.Action("Logout","Login")" class="dud-logout" title="Logout">
                                         <i class="feather icon-log-out"></i>
                                     </a>
                                 </div>
                                 <ul class="pro-body">
-                                    <li><a href="javascript:" class="dropdown-item"><i class="feather icon-settings"></i> Settings</a></li>
+                                    @*<li><a href="javascript:" class="dropdown-item"><i class="feather icon-settings"></i> Settings</a></li>
                                     <li><a href="javascript:" class="dropdown-item"><i class="feather icon-user"></i> Profile</a></li>
                                     <li><a href="message.html" class="dropdown-item"><i class="feather icon-mail"></i> My Messages</a></li>
-                                    <li><a href="auth-signin.html" class="dropdown-item"><i class="feather icon-lock"></i> Lock Screen</a></li>
+                                    <li><a href="auth-signin.html" class="dropdown-item"><i class="feather icon-lock"></i> Lock Screen</a></li>*@
                                 </ul>
                             </div>
                         </div>
@@ -231,59 +213,18 @@
         <section class="pcoded-main-container">
             <div class="pcoded-wrapper">
                 <div class="pcoded-content">
-                    <div class="pcoded-inner-content">
-                        <!-- [ breadcrumb ] start -->
-                        <div class="page-header">
-                            <div class="page-block">
-                                <div class="row align-items-center">
-                                    <div class="col-md-12">
-                                        <div class="page-header-title">
-                                            <h5 class="m-b-10">Bootstrap Basic Tables</h5>
-                                        </div>
-                                        <ul class="breadcrumb">
-                                            <li class="breadcrumb-item"><a href="index.html"><i class="feather icon-home"></i></a></li>
-                                            <li class="breadcrumb-item"><a href="#!">Tables</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript:">Basic Tables</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- [ breadcrumb ] end -->
-                        <div class="main-body">
-                            <div class="page-wrapper">
-                                <!-- [ Main Content ] start -->
-                                <div class="row">
-                                    <!-- [ basic-table ] start -->
-                                    <div class="col-xl-12">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5>Basic Table</h5>
-                                                <span class="d-block m-t-5">use class <code>table</code> inside table element</span>
-                                            </div>
-                                            <div class="card-block table-border-style">
-                                                <div class="table-responsive">
-                                                    @RenderBody()
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- [ Main Content ] end -->
-                            </div>
-                        </div>
-                    </div>
+                    @RenderBody()
                 </div>
             </div>
         </section>
     }
-    
+
     @*<partial name="_CookieConsentPartial" />*@
 
 
 
 
-    <environment exclude="Development">
+    <environment include="Development">
         @*<script src="~/lib/jquery/dist/jquery.js"></script>
             <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
         <script src="~/Template/template/assets/js/vendor-all.min.js"></script>
@@ -292,9 +233,13 @@
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
         <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
+        @if (controllerName != "Login")
+        {
+            <script src="~/js/site.js" asp-append-version="true"></script>
+        }
+
     </environment>
-    <environment include="Development">
+    <environment exclude="Development">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
                 asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
                 asp-fallback-test="window.jQuery"
@@ -307,7 +252,10 @@
                 crossorigin="anonymous"
                 integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd">
         </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
+        @if (controllerName != "Login")
+        {
+            <script src="~/js/site.js" asp-append-version="true"></script>
+        }
     </environment>
 
     @RenderSection("Scripts", required: false)

@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Login";
 }
 
 <div class="auth-wrapper" id="Login">
@@ -51,8 +51,7 @@
 </div>
 @section Scripts {
     <script>
-        var router = new VueRouter({mode: "history"}) ;
-        var app = new Vue({
+        var app_login = new Vue({
             el: '#Login',
             data: {
                 userData: {
