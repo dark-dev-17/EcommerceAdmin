@@ -20,7 +20,7 @@ namespace EcommerceAdmin2.Controllers
             var response = Json(new { });
             try
             {
-                using (DBMysql dBMysql = new DBMysql())
+                using (DBMysql dBMysql = new DBMysql("Splitel"))
                 {
                     dBMysql.OpenConnection();
                     if (dBMysql.Connection != null)
@@ -28,8 +28,8 @@ namespace EcommerceAdmin2.Controllers
                         using (Empleado Empleado = new Empleado(dBMysql))
                         {
                             int id = (int) HttpContext.Session.GetInt32("User_id");
-                            Empleado.GetEmpleado(id);
-                            if (Empleado.Response.Code == 0)
+                            int valueProcess = Empleado.GetEmpleado(id);
+                            if (valueProcess == 0)
                             {
                                 response = Json(new { Error = false, Description = "Información obtenida", Type = "Success", Code = 0, Data = Empleado });
                             }

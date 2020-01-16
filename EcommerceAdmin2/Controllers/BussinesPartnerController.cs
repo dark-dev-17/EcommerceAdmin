@@ -28,7 +28,6 @@ namespace EcommerceAdmin2.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult ListUserLoged()
         {
-            
             int USR_IdArea = (int)HttpContext.Session.GetInt32("USR_IdArea");
             int USR_IdSplinnet = (int)HttpContext.Session.GetInt32("USR_IdSplinnet");
             string USR_Sociedad =(string)HttpContext.Session.GetString("USR_Sociedad");
@@ -40,7 +39,7 @@ namespace EcommerceAdmin2.Controllers
                     bool IsConnectionDB = DBSqlServer.OpenDataBaseAccess();
                     if (IsConnectionDB)
                     {
-                        using (DBMysql dBMysql = new DBMysql())
+                        using (DBMysql dBMysql = new DBMysql("Splinet"))
                         {
                             dBMysql.OpenConnection();
                             if (dBMysql.Connection != null)
@@ -53,10 +52,8 @@ namespace EcommerceAdmin2.Controllers
                                         responseList = new ResponseList<BussinesPartner> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<BussinesPartner>()  };
                                         using (BussinesPartner BussinesPartner = new BussinesPartner(DBSqlServer))
                                         {
-                                            foreach (int idSap in Empleado.Id_sap)
-                                            {
-                                                BussinesPartner.GetBussinesPartnersBySalesEmp(idSap, responseList.Records);
-                                            }
+                                                BussinesPartner.GetBussinesPartnersBySalesEmp(Empleado.Id_sap, responseList.Records);
+                                            
                                         }
                                     }
                                     else
@@ -64,6 +61,7 @@ namespace EcommerceAdmin2.Controllers
                                         responseList = new ResponseList<BussinesPartner> { Code = 0, Description = "No tiene id de sap en splinnet", Type = "Suscess" };
                                     }
                                     dBMysql.CloseConnection();
+                                    DBSqlServer.CloseDataBaseAccess();
                                     return Ok(responseList);
                                 }
                                 
@@ -72,6 +70,7 @@ namespace EcommerceAdmin2.Controllers
                             {
                                 response = new Response { Code = 200, Description = "Somthing happened, please try again!!", Type = "Danger" };
                                 dBMysql.CloseConnection();
+                                DBSqlServer.CloseDataBaseAccess();
                                 return NotFound(response);
                             }
                         }
@@ -82,7 +81,6 @@ namespace EcommerceAdmin2.Controllers
                         return NotFound(response);
                     }
                 }
-                
             }
             else
             {

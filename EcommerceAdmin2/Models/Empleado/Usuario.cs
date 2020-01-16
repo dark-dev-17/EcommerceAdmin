@@ -17,7 +17,7 @@ namespace EcommerceAdmin2.Models.Empleado
         [Required]
         public string Contrasena { get; set; }
         private DBMysql DBMysql;
-        public Response Response { get; private set; }
+        private string ErrorMessage;
         private Empleado Empleado;
         public int Id { get; private set; }
         #endregion
@@ -40,17 +40,19 @@ namespace EcommerceAdmin2.Models.Empleado
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
                 if (DBMysql.CountDataReader(DataReader) == 1)
                 {
-                    Response = new Response { Code = 0, Description = "Login exitoso", Type = "Success" };
                     Id = (int)DataReader.GetUInt32(0);
-                    
                     DataReader.Close();
                     return 0;
                 }
                 else
                 {
-                    Response = new Response { Code = 10, Description = "Login no exitoso", Type = "Success" };
+                    ErrorMessage = "Login incorrecto";
                     return 10;
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (MySqlException ex)
             {
@@ -70,11 +72,6 @@ namespace EcommerceAdmin2.Models.Empleado
         {
             this.DBMysql = DBMysql;
         }
-        public void SetMessage(Response Response)
-        {
-            this.Response = Response;
-        }
-
         #region IDisposable Support
         private bool disposedValue = false; // Para detectar llamadas redundantes
 

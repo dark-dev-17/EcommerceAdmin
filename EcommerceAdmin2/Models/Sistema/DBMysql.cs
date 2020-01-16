@@ -17,13 +17,25 @@ namespace EcommerceAdmin2.Models.Sistema
         public MySqlConnection Connection { get; private set; }
         #endregion
         #region Constructores
-        public DBMysql()
+        public DBMysql(string mode)
         {
-            this.Server = "192.168.2.29";
-            this.Database = "fibreco_fmx";
-            this.Username = "fibremex";
-            this.Password = "FBSrvAD*0316.";
-            this.Port = "3306";
+            if(mode == "Splinet")
+            {
+                this.Server = "192.168.2.29";
+                this.Database = "fibreco_fmx";
+                this.Username = "fibremex";
+                this.Password = "FBSrvAD*0316.";
+                this.Port = "3306";
+            }
+            else
+            {
+                this.Server = "68.71.58.18";
+                this.Database = "fibremex_b2b_test";
+                this.Username = "fibremex_mxgod";
+                this.Password = "1q2w3e4r5t.";
+                this.Port = "3306";
+            }
+            
         }
         public DBMysql(string Server, string DataBase, string Username, string Password, string Port)
         {
@@ -48,6 +60,11 @@ namespace EcommerceAdmin2.Models.Sistema
             try
             {
                 Connection.Open();
+                CheckConnection();
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (MySqlException ex)
             {
@@ -58,6 +75,13 @@ namespace EcommerceAdmin2.Models.Sistema
                 throw ex;
             }
         }
+        private void CheckConnection()
+        {
+            if (Connection.State != System.Data.ConnectionState.Open)
+            {
+                throw new DBException("Sin conexion a base de datos MySQL");
+            }
+        }
         public void CloseConnection()
         {
             Connection.Close();
@@ -66,11 +90,17 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
+                CheckConnection();
                 //Create Command
                 MySqlCommand cmd = new MySqlCommand(stattement, Connection);
                 //Create a data reader and Execute the command
                 MySqlDataReader dataReader = cmd.ExecuteReader();
                 return dataReader;
+                
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (MySqlException ex)
             {
@@ -85,7 +115,7 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
-                //Create Command
+                CheckConnection();
                 MySqlCommand cmd = new MySqlCommand(stattement, Connection);
                 //Create a data reader and Execute the command
                 MySqlDataReader dataReader = cmd.ExecuteReader();
@@ -102,6 +132,10 @@ namespace EcommerceAdmin2.Models.Sistema
                 {
                     return -1;
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (MySqlException ex)
             {

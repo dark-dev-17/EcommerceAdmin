@@ -1,9 +1,10 @@
 ﻿
 @{
-    ViewData["Title"] = "Mis clientes";
+    ViewData["Title"] = "Listado de pedidos";
 }
 
-<div class="pcoded-inner-content" id="app_BussinesPartnerList">
+
+<div class="pcoded-inner-content" id="app_DocumentList">
     <!-- [ breadcrumb ] start -->
     <div class="page-header">
         <div class="page-block">
@@ -13,7 +14,7 @@
                     </div>
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")"><i class="feather icon-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Mis clientes</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Listado de pedidos</a></li>
                     </ul>
                 </div>
             </div>
@@ -40,16 +41,26 @@
                                     <table class="table table-bordered table-sm table-responsive-sm">
                                         <theah>
                                             <tr>
-                                                <th>Codigo</th>
+                                                <th>No.Ecom</th>
+                                                <th>No.Sap</th>
+                                                <th>Cliente</th>
                                                 <th>Nombre</th>
-                                                <th>Activo en ecommerce</th>
+                                                <th>Fecha</th>
+                                                <th>Total</th>
+                                                <th>Moneda</th>
+                                                <th>status</th>
                                             </tr>
                                         </theah>
                                         <tbody>
                                             <tr v-for="item in userData.records">
+                                                <td>{{ item.docNumEcommerce }}</td>
+                                                <td>{{ item.docNum }}</td>
                                                 <td>{{ item.cardCode }}</td>
-                                                <td>{{ item.cardName }}</td>
-                                                <td>{{ item.isActiveEcomerce }}</td>
+                                                <td>{{ item.cardname }}</td>
+                                                <td>{{ item.docDate }}</td>
+                                                <td>${{ item.docTotal }}</td>
+                                                <td>{{ item.docCur }}</td>
+                                                <td>{{ item.status }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -68,7 +79,7 @@
 @section Scripts {
     <script>
         var app_login = new Vue({
-            el: '#app_BussinesPartnerList',
+            el: '#app_DocumentList',
             data: {
             userData: {},
             Error: {
@@ -79,8 +90,8 @@
             loading: false
         },
         mounted() {
-            axios.get('./ListUserLoged').then(response => {
-            
+            axios.get('./ListDocCustomerByEmpl').then(response => {
+
                 this.userData = response.data;
                 console.log(this.userData);
                 //this.Error.Error = response.data.error;
@@ -100,9 +111,11 @@
             }).finally(() => this.loading = false);
         },
         methods: {
-        
+
         }
         })
     </script>
 }
+
+
 

@@ -6,6 +6,7 @@ using EcommerceAdmin2.Models.Empleado;
 using EcommerceAdmin2.Models.Sistema;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 
 namespace EcommerceAdmin2.Controllers
 {
@@ -22,36 +23,35 @@ namespace EcommerceAdmin2.Controllers
             var response = Json(new { }) ;
             if (ModelState.IsValid)
             {
-                int Response;
                 try
                 {
-                    using (DBMysql dBMysql = new DBMysql())
+                    using (DBMysql dBMysql = new DBMysql("Splinet"))
                     {
                         dBMysql.OpenConnection();
-                        if (dBMysql.Connection != null)
+                        Usuario.SetConnectionMysql(dBMysql);
+                        int Response = Usuario.DoLogin();
+                        if (Response == 0)
                         {
-                            Usuario.SetConnectionMysql(dBMysql);
-                            Response = Usuario.DoLogin();
-                            if (Response == 0)
-                            {
-                                StartSessions(Usuario.GetId(), dBMysql);
-                                response = Json(new { Error = false, Description = "Login success", Type = "Success", Code = 0 });
-                            }
-                            else
-                            {
-                                response = Json(new { Error = true, Description = "Usuario o contraseña incorrecta", Type = "Info", Code = 100 });
-                            }
+                            StartSessions(Usuario.GetId(), dBMysql);
+                            response = Json(new { Error = false, Description = "Login success", Type = "Success", Code = 0 });
                         }
                         else
                         {
-                            response = Json(new { Error = true, Description = "Ups!!, Por favor vuelve a intentarlo ", Type = "Warnign", Code = 200 });
+                            response = Json(new { Error = true, Description = "Usuario o contraseña incorrecta", Type = "Info", Code = 100 });
                         }
-                        dBMysql.CloseConnection();
                     }
+                }
+                catch (DBException ex)
+                {
+                    response = Json(new { Error = true, Description = ex.Message, Type = "Danger", Code = -100 });
+                }
+                catch (MySqlException ex)
+                {
+                    response = Json(new { Error = true, Description = ex.Message, Type = "Danger", Code = -100 });
                 }
                 catch (Exception ex)
                 {
-                    response = Json(new { Error = true, Description = "Ups!!, Por favor vuelve a intentarlo ", Type = "Danger", Code = -100 });
+                    response = Json(new { Error = true, Description = ex.Message, Type = "Danger", Code = -100 });
                 }
             }
             else

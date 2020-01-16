@@ -25,6 +25,13 @@ namespace EcommerceAdmin2.Models.Sistema
             Password = "splitel.lectura16";
             Database = "FIBREMX_TEST";
         }
+        public void ForceConnection(bool forceConnection)
+        {
+            if(sqlConnection.State != ConnectionState.Open && forceConnection == true)
+            {
+                OpenDataBaseAccess();
+            }
+        }
         public bool OpenDataBaseAccess()
         {
             string ConnectionString = "Data Source=" + Server + ";";
@@ -36,7 +43,12 @@ namespace EcommerceAdmin2.Models.Sistema
             {
                 sqlConnection = new SqlConnection(ConnectionString);
                 sqlConnection.Open();
+                CheckConnection();
                 return true;
+            }
+            catch(DBException ex)
+            {
+                throw ex;
             }
             catch (Exception exception)
             {
@@ -52,10 +64,18 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             sqlConnection.Close();
         }
+        private void CheckConnection()
+        {
+            if (sqlConnection.State != ConnectionState.Open)
+            {
+                throw new DBException("Sin conexion a base de datos SQLServer");
+            }
+        }
         public DataTable GetData(string sqlStatement)
         {
             try
             {
+                CheckConnection();
                 using (SqlCommand sqlCommand = new SqlCommand(sqlStatement, sqlConnection))
                 {
                     sqlCommand.CommandTimeout = 120;
@@ -68,6 +88,10 @@ namespace EcommerceAdmin2.Models.Sistema
                     }
                 }
             }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -77,12 +101,17 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
+                CheckConnection();
                 using (SqlCommand sqlCommand = new SqlCommand(sqlStatement, sqlConnection))
                 {
                     sqlCommand.CommandTimeout = 120;
                     DataReader = sqlCommand.ExecuteReader();
                     return DataReader;
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (Exception ex)
             {
@@ -97,10 +126,15 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
+                CheckConnection();
                 using (SqlCommand sqlCommand = new SqlCommand(sqlStatement, sqlConnection))
                 {
                     return string.IsNullOrEmpty(sqlCommand.ExecuteScalar().ToString()) ? 0 : int.Parse(sqlCommand.ExecuteScalar().ToString());
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (Exception exception)
             {
@@ -112,10 +146,15 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
+                CheckConnection();
                 using (SqlCommand sqlCommand = new SqlCommand(sqlStatement, sqlConnection))
                 {
                     return sqlCommand.ExecuteScalar().ToString();
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (Exception exception)
             {
@@ -126,10 +165,15 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
+                CheckConnection();
                 using (SqlCommand sqlCommand = new SqlCommand(sqlStatement, sqlConnection))
                 {
                     return string.IsNullOrEmpty(sqlCommand.ExecuteScalar().ToString()) ? 0 : double.Parse(sqlCommand.ExecuteScalar().ToString());
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (Exception exception)
             {
@@ -140,10 +184,15 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             try
             {
+                CheckConnection();
                 using (SqlCommand sqlCommand = new SqlCommand(sqlStatement, sqlConnection))
                 {
                     return DateTime.Parse(sqlCommand.ExecuteScalar().ToString());
                 }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (Exception exception)
             {

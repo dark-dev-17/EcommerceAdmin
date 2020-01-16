@@ -20,7 +20,7 @@ namespace EcommerceAdmin2.Models.Empleado
         public int IdArea { private set; get; }
         public List<int> Id_sap { private set; get; }
         private DBMysql DBMysql;
-        public Response Response {  get; private set; }
+        private string ErrorMessage;
         #endregion
         #region Constructores
         public Empleado(DBMysql DBMysql)
@@ -29,15 +29,16 @@ namespace EcommerceAdmin2.Models.Empleado
         }
         #endregion
         #region Metodos
-        public void GetEmpleado(int Id)
+        public int GetEmpleado(int Id)
         {
             string Statement = string.Format("SELECT ID,username,email,nombre,apaterno,amaterno,id_area,sociedad FROM signup where ID = '{0}';", Id);
+            int ResponseProces = 0;
             try
             {
+
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
                 if (DBMysql.CountDataReader(DataReader) == 1)
                 {
-                    Response = new Response { Code = 0, Description = "Empleado encontrado", Type = "Success" };
                     IdSplinnet = DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetUInt32(0);
                     Username = DataReader.IsDBNull(1) ? "" : DataReader.GetString(1);
                     Correo = DataReader.IsDBNull(2) ? "" : DataReader.GetString(2);
@@ -51,9 +52,15 @@ namespace EcommerceAdmin2.Models.Empleado
                 }
                 else
                 {
-                    Response = new Response { Code = 10, Description = "Sin registros", Type = "Info" };
+                    ErrorMessage = "Mas de un usuario con las mismas credenciales";
+                    ResponseProces = 200;
+                    DataReader.Close();
                 }
-                DataReader.Close();
+                
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (MySqlException ex)
             {
@@ -63,34 +70,34 @@ namespace EcommerceAdmin2.Models.Empleado
             {
                 throw ex;
             }
+            return ResponseProces;
         }
-        private void GetIdSapDB(int Id)
+        public int GetIdSapDB(int Id)
         {
             string Statement = string.Format("SELECT id_sap FROM id_split_sap where id_splittel = '{0}';", Id);
+            int ResponseProces = 0;
             try
             {
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
-                int Rows = DBMysql.CountDataReader(DataReader);
-                if (Rows >= 0)
+                if (DataReader.HasRows)
                 {
                     Id_sap = new List<int>();
-                    if(Rows == 1)
+                    while (DataReader.Read())
                     {
                         Id_sap.Add(DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetInt32(0));
                     }
-                    else
-                    {
-                        while (DataReader.Read())
-                        {
-                            Id_sap.Add(DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetInt32(0));
-                        }
-                    }
+                    DataReader.Close();
                 }
                 else
                 {
-                    Response = new Response { Code = 10, Description = "Sin registros", Type = "Info" };
+                    ErrorMessage = "Sin registros";
+                    ResponseProces = 0;
                 }
-                DataReader.Close();
+                
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (MySqlException ex)
             {
@@ -100,6 +107,7 @@ namespace EcommerceAdmin2.Models.Empleado
             {
                 throw ex;
             }
+            return ResponseProces;
         }
 
         #region IDisposable Support

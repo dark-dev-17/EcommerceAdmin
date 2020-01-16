@@ -37,6 +37,7 @@ namespace EcommerceAdmin2.Models.BussinesPartner
             string sqlStatement = string.Format("EXEC Eco_GetInfoGeneralCustomer @CardCode = '{0}'", CardCode);
             try
             {
+                SqlServer.ForceConnection(true);
                 DataTable data = SqlServer.GetData(sqlStatement);
                 if (data.Rows.Count == 1)
                 {
@@ -52,36 +53,41 @@ namespace EcommerceAdmin2.Models.BussinesPartner
             }
             return IsExists;
         }
-        public void GetBussinesPartnersBySalesEmp(int IdSalesEmp, List<BussinesPartner> List)
+        public void GetBussinesPartnersBySalesEmp(List<int> IdSalesEmpl, List<BussinesPartner> List)
         {
-            string sqlStatement = string.Format("EXEC [Eco_getCustomerBYSalesEmployer] @SlpCode = '{0}'", IdSalesEmp);
-            try
+            foreach (int IdSalesEmp in IdSalesEmpl)
             {
-                SqlDataReader data = SqlServer.GetDataReader(sqlStatement);
-                if (data.HasRows)
+                string sqlStatement = string.Format("EXEC [Eco_getCustomerBYSalesEmployer] @SlpCode = '{0}'", IdSalesEmp);
+                try
                 {
-                    while (data.Read())
+                    SqlDataReader data = SqlServer.GetDataReader(sqlStatement);
+                    if (data.HasRows)
                     {
-                        BussinesPartner BussinesPartner = new BussinesPartner();
-                        BussinesPartner.CardCode = data.IsDBNull(0) ? "" : data.GetString(0) + "";
-                        BussinesPartner.CardName = data.IsDBNull(1) ? "" : data.GetString(1) + "";
-                        BussinesPartner.SplName = data.IsDBNull(2) ? "" : data.GetString(2) + "";
-                        BussinesPartner.IsActive = data.IsDBNull(3) ? false : data.GetString(3) == "Si" ? true : false;
-                        BussinesPartner.IsActiveEcomerce = data.IsDBNull(4) ? false : data.GetString(4) == "Si" ? true : false;
-                        List.Add(BussinesPartner);
+                        while (data.Read())
+                        {
+                            BussinesPartner BussinesPartner = new BussinesPartner();
+                            BussinesPartner.CardCode = data.IsDBNull(0) ? "" : data.GetString(0) + "";
+                            BussinesPartner.CardName = data.IsDBNull(1) ? "" : data.GetString(1) + "";
+                            BussinesPartner.SplName = data.IsDBNull(2) ? "" : data.GetString(2) + "";
+                            BussinesPartner.IsActive = data.IsDBNull(3) ? false : data.GetString(3) == "Si" ? true : false;
+                            BussinesPartner.IsActiveEcomerce = data.IsDBNull(4) ? false : data.GetString(4) == "Si" ? true : false;
+                            List.Add(BussinesPartner);
+                        }
                     }
+                    else
+                    {
+                        //sin registros
+                    }
+                    data.Close();
                 }
-                else
+                catch (Exception Ex)
                 {
-                    //sin registros
+                    throw Ex;
                 }
-                data.Close();
             }
-            catch (Exception Ex)
-            {
-                throw Ex;
-            }
+            
         }
+
         #endregion
         #region IDisposable Support
         private bool disposedValue = false; // Para detectar llamadas redundantes
