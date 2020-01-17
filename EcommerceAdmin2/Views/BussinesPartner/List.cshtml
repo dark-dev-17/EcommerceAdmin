@@ -49,7 +49,10 @@
                                             <tr v-for="item in userData.records">
                                                 <td>{{ item.cardCode }}</td>
                                                 <td>{{ item.cardName }}</td>
-                                                <td>{{ item.isActiveEcomerce }}</td>
+                                                <td>
+                                                    <i v-if="item.isActiveEcomerce === true" class="fas fa-circle text-c-green f-10"></i>
+                                                    <i v-if="item.isActiveEcomerce === false" class="fas fa-circle text-c-red f-10"></i>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

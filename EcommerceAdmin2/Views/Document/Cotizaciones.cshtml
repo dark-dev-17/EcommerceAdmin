@@ -1,0 +1,131 @@
+﻿
+@{
+    ViewData["Title"] = "Listado de pedidos";
+}
+
+
+<div class="pcoded-inner-content" id="app_ListCotizacionesEcomerce">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+        <div class="page-block">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <div class="page-header-title">
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")"><i class="feather icon-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="#!">Listado de pedidos</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+    <div class="main-body">
+        <div class="page-wrapper">
+            <!-- [ Main Content ] start -->
+            <div class="row">
+                <!-- [ basic-table ] start -->
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Mis clientes</h5>
+                            @*<span class="d-block m-t-5">use class <code>table</code> inside table element</span>*@
+                        </div>
+                        <div class="card-block table-border-style">
+                            <div class="table-responsive">
+                                <div v-if="loading === true">
+                                    loading ...
+                                </div>
+                                <div v-if="loading === false">
+                                    <div v-if="RecordCound == 0"><h1>Sin registros</h1></div>
+                                    <div v-if="RecordCound > 0">
+                                        <table class="table table-bordered table-sm table-responsive-sm">
+                                            <theah>
+                                                <tr>
+                                                    <th>No.Ecom</th>
+                                                    <th>Cliente</th>
+                                                    <th>Nombre</th>
+                                                    <th>Fecha</th>
+                                                    <th>Total</th>
+                                                    <th>Moneda</th>
+                                                    <th>status</th>
+                                                </tr>
+                                            </theah>
+                                            <tbody>
+                                                <tr v-for="item in userData.records">
+                                                    
+                                                    <td><a href="#" v-on:click="ShowDocumentLines(item.docNumEcommerce)" title="Ver articulos" class="">{{ item.docNumEcommerce }}</a></td>
+                                                    <td>{{ item.cardCode }}</td>
+                                                    <td>{{ item.cardname }}</td>
+                                                    <td>{{ item.docDate }}</td>
+                                                    <td>${{ formatPrice(item.docTotal) }}</td>
+                                                    <td>{{ item.docCur }}</td>
+                                                    <td>{{ item.docRate }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [ Main Content ] end -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var app_login = new Vue({
+            el: '#app_ListCotizacionesEcomerce',
+            data: {
+            userData: {},
+            Error: {
+                Error: false,
+                Description: ""
+            },
+            RecordCound: 0,
+            loading: false
+        },
+        mounted() {
+            axios.get('./ListCotizacionesEcomerce').then(response => {
+
+                this.userData = response.data;
+                this.RecordCound = this.userData.count;
+                console.log(this.userData);
+                //this.Error.Error = response.data.error;
+                //this.Error.Description = response.data.description;
+                //if (response.data.error == false) {
+                //    this.loginSuccess = true;
+                //    //router.go('');
+                //    window.location = '../Home';
+                //} else {
+                //    this.loginSuccess = false;
+                //}
+            }).catch(error => {
+                console.log(error);
+                //this.Error.Error = true;
+                //this.loginSuccess = false;
+                //this.Error.Description = error.message;
+            }).finally(() => this.loading = false);
+        },
+        methods: {
+            ShowDocumentLines: function (DocEntry) {
+                window.location = '../DocumentLines/Cotizaciones/' + DocEntry;
+            },
+            formatPrice: function (value) {
+                let val = (value / 1).toFixed(2).replace('.', ',')
+                return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
+        }
+
+    })
+    </script>
+}
+
+
+

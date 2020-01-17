@@ -38,32 +38,35 @@
                                     loading ...
                                 </div>
                                 <div v-if="loading === false">
-                                    <table class="table table-bordered table-sm table-responsive-sm">
-                                        <theah>
-                                            <tr>
-                                                <th>No.Ecom</th>
-                                                <th>No.Sap</th>
-                                                <th>Cliente</th>
-                                                <th>Nombre</th>
-                                                <th>Fecha</th>
-                                                <th>Total</th>
-                                                <th>Moneda</th>
-                                                <th>status</th>
-                                            </tr>
-                                        </theah>
-                                        <tbody>
-                                            <tr v-for="item in userData.records">
-                                                <td>{{ item.docNumEcommerce }}</td>
-                                                <td>{{ item.docNum }}</td>
-                                                <td>{{ item.cardCode }}</td>
-                                                <td>{{ item.cardname }}</td>
-                                                <td>{{ item.docDate }}</td>
-                                                <td>${{ item.docTotal }}</td>
-                                                <td>{{ item.docCur }}</td>
-                                                <td>{{ item.status }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div v-if="RecordCound == 0"><h1>Sin registros</h1></div>
+                                    <div v-if="RecordCound > 0">
+                                        <table class="table table-bordered table-sm table-responsive-sm">
+                                            <theah>
+                                                <tr>
+                                                    <th>No.Ecom</th>
+                                                    <th>No.Cotizacion SAP</th>
+                                                    <th>Cliente</th>
+                                                    <th>Nombre</th>
+                                                    <th>Fecha</th>
+                                                    <th>Total</th>
+                                                    <th>Moneda</th>
+                                                    <th>status</th>
+                                                </tr>
+                                            </theah>
+                                            <tbody>
+                                                <tr v-for="item in userData.records">
+                                                    <td>{{ item.docNumEcommerce }}</td>
+                                                    <td><a href="#" v-on:click="ShowDocumentLines(item.docNum,item.docType)" title="Ver articulos" class="">{{ item.docNum }}</a></td>
+                                                    <td>{{ item.cardCode }}</td>
+                                                    <td>{{ item.cardname }}</td>
+                                                    <td>{{ item.docDate }}</td>
+                                                    <td>${{ formatPrice(item.docTotal) }}</td>
+                                                    <td>{{ item.docCur }}</td>
+                                                    <td>{{ item.status }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -86,13 +89,14 @@
                 Error: false,
                 Description: ""
             },
-            loginSuccess: false,
+            RecordCound: 0,
             loading: false
         },
         mounted() {
             axios.get('./ListDocCustomerByEmpl').then(response => {
 
                 this.userData = response.data;
+                this.RecordCound = this.userData.count;
                 console.log(this.userData);
                 //this.Error.Error = response.data.error;
                 //this.Error.Description = response.data.description;
@@ -111,9 +115,16 @@
             }).finally(() => this.loading = false);
         },
         methods: {
-
+            ShowDocumentLines: function (DocEntry, DocType) {
+                window.location = '../DocumentLines/List/' + DocEntry + '/' + DocType;
+            },
+            formatPrice: function (value) {
+                let val = (value / 1).toFixed(2).replace('.', ',')
+                return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            }
         }
-        })
+        
+    })
     </script>
 }
 

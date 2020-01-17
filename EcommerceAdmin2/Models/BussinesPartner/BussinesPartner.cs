@@ -53,6 +53,46 @@ namespace EcommerceAdmin2.Models.BussinesPartner
             }
             return IsExists;
         }
+        public List<BussinesPartner> GetBussinesPartnersBySalesEmp(List<int> IdSalesEmpl)
+        {
+            List<BussinesPartner> ListBussinesPartner = new List<BussinesPartner>();
+            foreach (int IdSalesEmp in IdSalesEmpl)
+            {
+                try
+                {
+                    string sqlStatement = string.Format("EXEC [Eco_getCustomerBYSalesEmployer] @SlpCode = '{0}'", IdSalesEmp);
+                    SqlDataReader data = SqlServer.GetDataReader(sqlStatement);
+                    if (data.HasRows)
+                    {
+                        while (data.Read())
+                        {
+                            BussinesPartner BussinesPartner = new BussinesPartner();
+                            BussinesPartner.CardCode = data.IsDBNull(0) ? "" : data.GetString(0) + "";
+                            BussinesPartner.CardName = data.IsDBNull(1) ? "" : data.GetString(1) + "";
+                            BussinesPartner.SplName = data.IsDBNull(2) ? "" : data.GetString(2) + "";
+                            BussinesPartner.IsActive = data.IsDBNull(3) ? false : data.GetString(3) == "Si" ? true : false;
+                            BussinesPartner.IsActiveEcomerce = data.IsDBNull(4) ? false : data.GetString(4) == "Si" ? true : false;
+                            ListBussinesPartner.Add(BussinesPartner);
+                        }
+                    }
+                    else
+                    {
+                        //sin registros
+                    }
+                    data.Close();
+                    
+                }
+                catch (DBException ex)
+                {
+                    throw ex;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+            return ListBussinesPartner;
+        }
         public void GetBussinesPartnersBySalesEmp(List<int> IdSalesEmpl, List<BussinesPartner> List)
         {
             foreach (int IdSalesEmp in IdSalesEmpl)

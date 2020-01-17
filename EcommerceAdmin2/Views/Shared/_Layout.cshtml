@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin Ecom</title>
 
-    <environment exclude="Development">
+    <environment include="Development">
         @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />*@
         <!-- Favicon icon -->
         <link rel="icon" href="~/Template/template/assets/images/favicon.ico" type="image/x-icon">
@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="~/Template/template/assets/css/style.css">
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
-    <environment include="Development">
+    <environment exclude="Development">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
@@ -75,7 +75,7 @@
                                 <li class="nav-item"><a href="@Url.Action("List","Document")" class="">Seguimiento Pedidos</a></li>
                             </ul>
                             <ul class="pcoded-submenu">
-                                <li class=""><a href="bc_button.html" class="">Cotizaciones realizadas</a></li>
+                                <li class=""><a href="@Url.Action("Cotizaciones","Document")" class="">Cotizaciones realizadas</a></li>
                             </ul>
                         </li>
                         <li class="nav-item pcoded-menu-caption">
@@ -224,7 +224,7 @@
 
 
 
-    <environment exclude="Development">
+    <environment include="Development">
         @*<script src="~/lib/jquery/dist/jquery.js"></script>
             <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
         <script src="~/Template/template/assets/js/vendor-all.min.js"></script>
@@ -239,7 +239,7 @@
         }
 
     </environment>
-    <environment include="Development">
+    <environment exclude="Development">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
                 asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
                 asp-fallback-test="window.jQuery"

@@ -18,6 +18,7 @@ namespace EcommerceAdmin2.Models.Sistema
         public string Description { get; set; }
         public int Code { get; set; }
         public List<T> Records { get; set; }
+        public int Count { get { return Records.Count; } }
     }
     [Newtonsoft.Json.JsonObject(Title = "Response")]
     public class Response

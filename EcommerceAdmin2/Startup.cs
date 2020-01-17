@@ -65,6 +65,13 @@ namespace EcommerceAdmin2
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Login}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "CotizacionLines",
+                    template: "{controller=DocumentLines}/{action=Cotizaciones}/{id}");
+                routes.MapRoute(
+                    name: "DocumentLine",
+                    template: "{controller=DocumentLines}/{action=List}/{DocEntry}/{DocType}");
+                
             });
         }
     }

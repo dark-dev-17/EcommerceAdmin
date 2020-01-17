@@ -48,7 +48,7 @@ namespace EcommerceAdmin2.Models.Empleado
                     IdArea = DataReader.IsDBNull(6) ? 0 : DataReader.GetInt32(6);
                     Sociedad = DataReader.IsDBNull(7) ? "" : DataReader.GetString(7);
                     DataReader.Close();
-                    GetIdSapDB(Id);
+                    Id_sap = GetIdSapDB(Id);
                 }
                 else
                 {
@@ -72,26 +72,24 @@ namespace EcommerceAdmin2.Models.Empleado
             }
             return ResponseProces;
         }
-        public int GetIdSapDB(int Id)
+        public List<int> GetIdSapDB(int Id)
         {
+            List<int> ListIDSap = new List<int>();
             string Statement = string.Format("SELECT id_sap FROM id_split_sap where id_splittel = '{0}';", Id);
-            int ResponseProces = 0;
             try
             {
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
                 if (DataReader.HasRows)
                 {
-                    Id_sap = new List<int>();
                     while (DataReader.Read())
                     {
-                        Id_sap.Add(DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetInt32(0));
+                        ListIDSap.Add(DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetInt32(0));
                     }
                     DataReader.Close();
                 }
                 else
                 {
                     ErrorMessage = "Sin registros";
-                    ResponseProces = 0;
                 }
                 
             }
@@ -107,7 +105,7 @@ namespace EcommerceAdmin2.Models.Empleado
             {
                 throw ex;
             }
-            return ResponseProces;
+            return ListIDSap;
         }
 
         #region IDisposable Support

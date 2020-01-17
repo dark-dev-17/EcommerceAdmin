@@ -1,4 +1,5 @@
 ﻿using EcommerceAdmin2.Models.Sistema;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -14,6 +15,9 @@ namespace EcommerceAdmin2.Models.Documents
         public string DocNum { get; set; }
         public DateTime DocDate { get; set; }
         public double DocTotal { get; set; }
+        public double DocSubTotal { get; set; }
+        public double DocIva { get; set; }
+        public double DocRate { get; set; }
         public string DocType { get; set; }
         public string CardCode { get; set; }
         public string Cardname{ get; set; }
@@ -22,6 +26,7 @@ namespace EcommerceAdmin2.Models.Documents
         public string Status { get; set; }
         public string DocNumEcommerce { get; set; }
         private DBSqlServer SqlServer { get; set; }
+        private DBMysql DBMysql;
         #endregion
         #region Constructores
         public DocumentGeneral()
@@ -32,8 +37,51 @@ namespace EcommerceAdmin2.Models.Documents
         {
             this.SqlServer = SqlServer;
         }
+        public DocumentGeneral(DBMysql DBMysql)
+        {
+            this.DBMysql = DBMysql;
+        }
         #endregion
         #region Metodos
+        public void GetSalesQuotationEcomerce(List<DocumentGeneral> ListDocumentGeneral, string CardCode, string Cardname)
+        {
+            string Statement = string.Format("SELECT * FROM admin_Cotizaciones where cardcode = '{0}';", CardCode);
+            try
+            {
+                MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
+                if (DataReader.HasRows)
+                {
+                    while (DataReader.Read())
+                    {
+                        DocumentGeneral DocumentGeneral = new DocumentGeneral();
+                        DocumentGeneral.DocNumEcommerce = DataReader.IsDBNull(0) ? "" : ((int)DataReader.GetInt32(0) + "");
+                        DocumentGeneral.CardCode = DataReader.IsDBNull(8) ? "" : DataReader.GetString(8);
+                        DocumentGeneral.Cardname = Cardname;
+                        DocumentGeneral.DocSubTotal = DataReader.IsDBNull(2) ? 0 : (double)DataReader.GetDouble(2) ;
+                        DocumentGeneral.DocIva = DataReader.IsDBNull(3) ? 0 : (double)DataReader.GetDouble(3) ;
+                        DocumentGeneral.DocTotal = DataReader.IsDBNull(4) ? 0 : (double)DataReader.GetDouble(4) ;
+                        DocumentGeneral.DocDate = DataReader.GetDateTime(5) ;
+                        DocumentGeneral.DocRate = DataReader.GetDouble(6) ;
+                        DocumentGeneral.DocCur = "USD" ;
+                        ListDocumentGeneral.Add(DocumentGeneral);
+                        //ListDocumentGeneral.Add();
+                    }
+                    DataReader.Close();
+                }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void GetDocumentsByCustomer(List<DocumentGeneral> ListDocumentGeneral,string CardCode,string Cardname)
         {
             try
