@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Pedidos en rechazados";
+}
+<div id="app_DocumentListRejected">
+
+    <div class="card pd-20 pd-sm-40">
+        <div>
+            <h6 class="card-body-title">@ViewData["Title"]</h6>
+            @*<p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>*@
+        </div>
+        <div>
+            <div class="table-responsive">
+                <div v-if="loading === true">
+                    cargando ...
+                </div>
+                <div v-if="loading === false">
+                    <div v-if="RecordCound == 0"><h1>Sin registros</h1></div>
+                    <div v-if="RecordCound > 0">
+                        <table class="table table-bordered table-sm table-responsive-sm" id="table_documentsRejected">
+                            <thead>
+                                <tr>
+                                    <th>Documento</th>
+                                    <th>Cliente</th>
+                                    <th>Nombre</th>
+                                    <th>Fecha</th>
+                                    <th>status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in userData.records">
+                                    <td><a href="#" v-on:click="" title="Ver articulos" class="">{{ item.docNum }}</a></td>
+                                    <td>{{ item.cardCode }}</td>
+                                    <td>{{ item.cardname }}</td>
+                                    <td>{{ item.docDate }}</td>
+                                    <td>{{ item.status }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        var app_login = new Vue({
+            el: '#app_DocumentListRejected',
+            data: {
+            userData: {},
+            Error: {
+                Error: false,
+                Description: ""
+            },
+            RecordCound: 0,
+            loading: true
+        },
+        async mounted() {
+            await this.GetListDocuments();
+        },
+        methods: {
+            ShowDocumentLines: function (DocEntry, DocType) {
+                window.location = '../DocumentLines/List/' + DocEntry + '/' + DocType;
+            },
+            formatPrice: function (value) {
+                let val = (value / 1).toFixed(2).replace('.', ',')
+                return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+            },
+            GetListDocuments: function () {
+                RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                axios.post('./DataRejected', null,headers).then(response => {
+                    this.userData = response.data;
+                    this.RecordCound = this.userData.count;
+                    $('#table_documentsRejected').DataTable();
+                    console.log(this.userData);
+                }).catch(error => {
+                    console.log(error);
+                }).finally(() => this.loading = false);
+            }
+        }
+
+    })
+    </script>
+}
+
+
+

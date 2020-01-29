@@ -9,83 +9,130 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 using EcommerceAdmin2.Models.BussinesPartner;
+using EcommerceAdmin2.Models;
+using EcommerceAdmin2.Models.Filters;
+using MySql.Data.MySqlClient;
 
 namespace EcommerceAdmin2.Controllers
 {
+    [FilterSessionValid]
     public class BussinesPartnerController : Controller
     {
         private ResponseList<BussinesPartner> responseList;
         private Response response;
+
+        [AccessViewSession]
         public IActionResult Index()
         {
-            return View();
+            int USR_IdSplinnet = (int)HttpContext.Session.GetInt32("USR_IdSplinnet");
+            using (Usuario usuario = new Usuario())
+            {
+                if(usuario.ValidPermisControlView(USR_IdSplinnet, 9))
+                {
+                    return View();
+                }
+                else if(usuario.ValidPermisControlView(USR_IdSplinnet, 10))
+                {
+                    return View();
+                }
+                else
+                {
+                    return RedirectToAction("NoAccess", "ErrorPages");
+                }
+            }
         }
+        [AccessDataSession]
         public IActionResult List()
         {
-            return View();
+            int USR_IdSplinnet = (int)HttpContext.Session.GetInt32("USR_IdSplinnet");
+            using (Usuario usuario = new Usuario())
+            {
+                if (usuario.ValidPermisControlView(USR_IdSplinnet, 9))
+                {
+                    return View();
+                }
+                else if (usuario.ValidPermisControlView(USR_IdSplinnet, 10))
+                {
+                    return View();
+                }
+                else
+                {
+                    return RedirectToAction("NoAccess", "ErrorPages");
+                }
+            }
         }
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult ListUserLoged()
         {
-            int USR_IdArea = (int)HttpContext.Session.GetInt32("USR_IdArea");
-            int USR_IdSplinnet = (int)HttpContext.Session.GetInt32("USR_IdSplinnet");
-            string USR_Sociedad =(string)HttpContext.Session.GetString("USR_Sociedad");
-            
-            if (USR_IdArea == 3 && USR_Sociedad == "Fibremex" || USR_IdArea == 14 && USR_Sociedad == "Fibremex")
+            try
             {
-                using (DBSqlServer DBSqlServer = new DBSqlServer())
+                bool AccessBySalesEmp = false;
+                bool AccessAll = false;
+                int USR_IdSplinnet = (int)HttpContext.Session.GetInt32("USR_IdSplinnet");
+                using (DBMysql dBMysql = new DBMysql("Splinet"))
                 {
-                    bool IsConnectionDB = DBSqlServer.OpenDataBaseAccess();
-                    if (IsConnectionDB)
+                    dBMysql.OpenConnection();
+                    using (Usuario usuario = new Usuario(dBMysql))
                     {
-                        using (DBMysql dBMysql = new DBMysql("Splinet"))
+                        // acceso a solo clientes por ejecutivo
+                        AccessBySalesEmp = usuario.AccessToAction(USR_IdSplinnet, 9);
+                        // acceso a todos los clientes
+                        AccessAll = usuario.AccessToAction(USR_IdSplinnet, 10);
+                    }
+                    // obtener informacion de todos los clientes sin importar el ejecutivo
+                    if (!AccessBySalesEmp && AccessAll)
+                    {
+                        responseList = new ResponseList<BussinesPartner> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<BussinesPartner>() };
+                        using (DBSqlServer DBSqlServer = new DBSqlServer())
                         {
-                            dBMysql.OpenConnection();
-                            if (dBMysql.Connection != null)
+                            bool IsConnectionDB = DBSqlServer.OpenDataBaseAccess();
+                            using (BussinesPartner BussinesPartner = new BussinesPartner(DBSqlServer))
                             {
-                                using (Empleado Empleado = new Empleado(dBMysql))
+                                responseList.Records = BussinesPartner.SelectAllactive();
+                            }
+                            DBSqlServer.CloseDataBaseAccess();
+                        }
+                        return Ok(responseList);
+                    }
+                    // obtener informacion de clientes por ejecutivo
+                    else if (AccessBySalesEmp && !AccessAll)
+                    {
+                        using (Empleado empleado = new Empleado(dBMysql))
+                        {
+                            empleado.GetEmpleado(USR_IdSplinnet);
+                            empleado.GetIdSapDB(USR_IdSplinnet);
+                            using (DBSqlServer DBSqlServer = new DBSqlServer())
+                            {
+                                responseList = new ResponseList<BussinesPartner> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<BussinesPartner>() };
+                                bool IsConnectionDB = DBSqlServer.OpenDataBaseAccess();
+                                using (BussinesPartner BussinesPartner = new BussinesPartner(DBSqlServer))
                                 {
-                                    Empleado.GetEmpleado(USR_IdSplinnet);
-                                    if(Empleado.Id_sap.Count > 0)
-                                    {
-                                        responseList = new ResponseList<BussinesPartner> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<BussinesPartner>()  };
-                                        using (BussinesPartner BussinesPartner = new BussinesPartner(DBSqlServer))
-                                        {
-                                                BussinesPartner.GetBussinesPartnersBySalesEmp(Empleado.Id_sap, responseList.Records);
-                                            
-                                        }
-                                    }
-                                    else
-                                    {
-                                        responseList = new ResponseList<BussinesPartner> { Code = 0, Description = "No tiene id de sap en splinnet", Type = "Suscess" };
-                                    }
-                                    dBMysql.CloseConnection();
-                                    DBSqlServer.CloseDataBaseAccess();
-                                    return Ok(responseList);
+                                    BussinesPartner.GetBussinesPartnersBySalesEmp(empleado.Id_sap, responseList.Records);
                                 }
-                                
-                            }
-                            else
-                            {
-                                response = new Response { Code = 200, Description = "Somthing happened, please try again!!", Type = "Danger" };
-                                dBMysql.CloseConnection();
                                 DBSqlServer.CloseDataBaseAccess();
-                                return NotFound(response);
                             }
+                            return Ok(responseList);
                         }
                     }
                     else
                     {
-                        response = new Response { Code = 200, Description = "Somthing happened, please try again!!", Type = "Danger" };
-                        return NotFound(response);
+                        return BadRequest("Sin acceso a ninguna seccion, configuración de permisos erronea");
                     }
+                    dBMysql.CloseConnection();
                 }
             }
-            else
+            catch (DBException ex)
             {
-                response = new Response { Code = 100, Description = "No autorization to access", Type = "Danger" };
-                return NotFound(response);
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

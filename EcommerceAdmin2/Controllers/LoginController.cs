@@ -7,17 +7,20 @@ using EcommerceAdmin2.Models.Sistema;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using EcommerceAdmin2.Models;
 
 namespace EcommerceAdmin2.Controllers
 {
+    
     public class LoginController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
+
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public ActionResult Create([FromBody]Usuario Usuario)
         {
             var response = Json(new { }) ;

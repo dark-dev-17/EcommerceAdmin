@@ -8,6 +8,7 @@ using EcommerceAdmin2.Models;
 
 namespace EcommerceAdmin2.Controllers
 {
+    [FilterSessionValid]
     public class HomeController : Controller
     {
         public IActionResult Index()

@@ -49,25 +49,22 @@ namespace EcommerceAdmin2.Models.Documents
             try
             {
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
-                if (DataReader.HasRows)
+                while (DataReader.Read())
                 {
-                    while (DataReader.Read())
-                    {
-                        DocumentGeneral DocumentGeneral = new DocumentGeneral();
-                        DocumentGeneral.DocNumEcommerce = DataReader.IsDBNull(0) ? "" : ((int)DataReader.GetInt32(0) + "");
-                        DocumentGeneral.CardCode = DataReader.IsDBNull(8) ? "" : DataReader.GetString(8);
-                        DocumentGeneral.Cardname = Cardname;
-                        DocumentGeneral.DocSubTotal = DataReader.IsDBNull(2) ? 0 : (double)DataReader.GetDouble(2) ;
-                        DocumentGeneral.DocIva = DataReader.IsDBNull(3) ? 0 : (double)DataReader.GetDouble(3) ;
-                        DocumentGeneral.DocTotal = DataReader.IsDBNull(4) ? 0 : (double)DataReader.GetDouble(4) ;
-                        DocumentGeneral.DocDate = DataReader.GetDateTime(5) ;
-                        DocumentGeneral.DocRate = DataReader.GetDouble(6) ;
-                        DocumentGeneral.DocCur = "USD" ;
-                        ListDocumentGeneral.Add(DocumentGeneral);
-                        //ListDocumentGeneral.Add();
-                    }
-                    DataReader.Close();
+                    DocumentGeneral DocumentGeneral = new DocumentGeneral();
+                    DocumentGeneral.DocNumEcommerce = DataReader.IsDBNull(0) ? "" : ((int)DataReader.GetInt32(0) + "");
+                    DocumentGeneral.CardCode = DataReader.IsDBNull(8) ? "" : DataReader.GetString(8);
+                    DocumentGeneral.Cardname = Cardname;
+                    DocumentGeneral.DocSubTotal = DataReader.IsDBNull(2) ? 0 : (double)DataReader.GetDouble(2);
+                    DocumentGeneral.DocIva = DataReader.IsDBNull(3) ? 0 : (double)DataReader.GetDouble(3);
+                    DocumentGeneral.DocTotal = DataReader.IsDBNull(4) ? 0 : (double)DataReader.GetDouble(4);
+                    DocumentGeneral.DocDate = DataReader.GetDateTime(5);
+                    DocumentGeneral.DocRate = DataReader.GetDouble(6);
+                    DocumentGeneral.DocCur = "USD";
+                    ListDocumentGeneral.Add(DocumentGeneral);
+                    //ListDocumentGeneral.Add();
                 }
+                DataReader.Close();
             }
             catch (DBException ex)
             {
@@ -103,6 +100,41 @@ namespace EcommerceAdmin2.Models.Documents
                         DocumentGeneral.DocCur = data.GetString(7);
                         DocumentGeneral.Status = data.GetInt32(9) + "";
                         DocumentGeneral.TrackNo = data.IsDBNull(8) ? "" : data.GetString(8) + "";
+                        DocumentGeneral.Cardname = Cardname;
+                        ListDocumentGeneral.Add(DocumentGeneral);
+                    }
+                }
+                else
+                {
+                    //sin registros
+                }
+                data.Close();
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void GetDocumentsRejectedByCustomer(List<DocumentGeneral> ListDocumentGeneral, string CardCode, string Cardname)
+        {
+            try
+            {
+                string sqlStatement = string.Format("exec Eco_GetOrdersRejected @CardCode = '{0}', @DocDate = '2019-05-01'", CardCode);
+                SqlDataReader data = SqlServer.GetDataReader(sqlStatement);
+                if (data.HasRows)
+                {
+                    while (data.Read())
+                    {
+                        DocumentGeneral DocumentGeneral = new DocumentGeneral();
+                        DocumentGeneral.CardCode = CardCode;
+                        DocumentGeneral.DocNum = data.IsDBNull(1) ? "" : data.GetInt32(1) + "";
+                        DocumentGeneral.DocDate =  DateTime.Parse(data.GetString(2) + "");
+                        DocumentGeneral.Status = data.IsDBNull(3) ? "" : data.GetString(3);
+                        DocumentGeneral.DocType = data.IsDBNull(0) ? "" : data.GetString(0);
                         DocumentGeneral.Cardname = Cardname;
                         ListDocumentGeneral.Add(DocumentGeneral);
                     }

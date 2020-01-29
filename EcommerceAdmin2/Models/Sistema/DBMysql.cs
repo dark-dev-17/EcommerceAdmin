@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -86,15 +87,39 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             Connection.Close();
         }
+        public int DoNonQuery(string stattement)
+        {
+            try
+            {
+                CheckConnection();
+                //Create Command
+                MySqlCommand command = new MySqlCommand(stattement, Connection);
+                //Create a data reader and Execute the command
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public MySqlDataReader DoQuery(string stattement)
         {
             try
             {
                 CheckConnection();
                 //Create Command
-                MySqlCommand cmd = new MySqlCommand(stattement, Connection);
+                MySqlCommand command = new MySqlCommand(stattement, Connection);
                 //Create a data reader and Execute the command
-                MySqlDataReader dataReader = cmd.ExecuteReader();
+                MySqlDataReader dataReader = command.ExecuteReader();
                 return dataReader;
                 
             }
@@ -111,6 +136,41 @@ namespace EcommerceAdmin2.Models.Sistema
                 throw ex;
             }
         }
+        public bool ExecuteProcedure(string Parameters, string returnValue)
+        {
+
+            try
+            {
+                CheckConnection();
+                string ProcedureName = Parameters.Split('|')[0];
+                string[] Paramet = Parameters.Split('|')[1].Split('&');
+                MySqlCommand cmd = new MySqlCommand(ProcedureName, Connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+                //campo @ typevar = valor &
+                foreach (string item in Paramet)
+                {
+                    string variable = item.Split('@')[0];
+                    string type = item.Split('@')[1].Split('=')[0];
+                    string value = item.Split('@')[1].Split('=')[1];
+                    cmd.Parameters.AddWithValue("@" + variable, value);
+                }
+                MySqlDataReader dataReader = cmd.ExecuteReader();
+                dataReader.Close();
+                return false;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        } 
         public int DoQuerySingle(string stattement)
         {
             try

@@ -1,0 +1,145 @@
+﻿
+        var app_ProductoShow = new Vue({
+            el: '#app_ProductoShow',
+            data: {
+                itemCode : '@ViewData["ItemCode"]',
+                Producto: {},
+                imagesProduto: {
+                    isLoading: true,
+                    Data: {},
+                    newFile: null
+                },
+                Controls: {
+                    isEditingLargeDescription: false,
+                    isLoadingAdditionalDescripcion: true,
+                    isLoadingDescripcion: true,
+                },
+                Error: {
+                    Error: false,
+                    Description: ""
+                },
+                RecordCound: 0,
+                loading: true,
+
+            },
+            mounted() {
+                this.GetProdcut();
+                this.GetImagesProduct();
+            },
+            methods: {
+                getFile(event) {
+                    this.imagesProduto.newFile = event.target.files[0];
+                    console.log(this.file);
+                },
+                submitFileProdcuto: async function () {
+                    //if (this.newFile != null) {
+                        let params = new FormData();
+                        params.append('FormFile', this.imagesProduto.newFile);
+                        params.append('ItemCode', '' + this.itemCode);
+                        RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                        const headers = {
+                            'Content-Type': 'multipart/form-data',
+                            'RequestVerificationToken': RequestVerificationToken
+                        }
+                        await axios.post('../DataUpdateFile',params,{headers: headers}).then(response => {
+                            console.log(response.data)
+                            this.GetImagesProduct();
+                            alert("Imagen agregada")
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.loading = false)
+                    //} else {
+                    //    alert("Por selecciona una archivo primero")
+                    //}
+
+                },
+                DeleteImage: async function (index) {
+                    var alertt = confirm("¿Deseas eliminar esta imagen?");
+                    if (alertt == true) {
+                        var params = new URLSearchParams();
+                        params.append('Filename', '' + this.imagesProduto.Data.records[index].name);
+                        params.append('ItemCode', '' + this.itemCode);
+                        params.append('ImagessType', 'Producto');
+                        await axios.post('../DataDeleteFile',params).then(response => {
+                            console.log(response.data)
+                            this.imagesProduto.Data.records.splice(index, 1);
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.loading = false)
+                    } else {
+
+                    }
+                },
+                UpdateLargeDescription: async function () {
+                    var alertt = confirm("¿Deseas guardar la información?");
+                    if (alertt == true) {
+                        var params = new URLSearchParams();
+                        params.append('LargeDescription', '' + this.Producto.objeto.largeDescription);
+                        params.append('ItemCode', '' + this.itemCode);
+                        await axios.post('../DataUpdateLargeDescription',params).then(response => {
+                            console.log(response.data)
+                            alert("Se ha guardado la información")
+                            this.Controls.isEditingLargeDescription = false
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.loading = false)
+                    } else {
+
+                    }
+                },
+                GetProdcut: async function () {
+                    var params = new URLSearchParams();
+                    params.append('ItemCode', '' + this.itemCode);
+                    await axios.post('../DataShow',params).then(response => {
+                        this.Producto = response.data;
+                        console.log(this.Producto);
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.loading = false)
+                },
+                GetImagesProduct: async function () {
+                    var params = new URLSearchParams();
+                    params.append('ItemCode', '' + this.itemCode);
+                    await axios.post('../DataGetFilesItem',params).then(response => {
+                        this.imagesProduto.Data = response.data;
+                        console.log(this.imagesProduto);
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.imagesProduto.isLoading = false)
+                },
+                formatPrice: function(value) {
+                    let val = (value/1).toFixed(2).replace('.', ',')
+                    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                },
+                ActiveItem: async function () {
+                    var params = new URLSearchParams();
+                    params.append('Active', 'true');
+                    params.append('ItemCode', '' + this.Producto.objeto.itemCode );
+                    await axios.post('../DataactiveItem', params,null).then(response => {
+                        if (response.data.code == 0) {
+                            this.Producto.objeto.isActiveEcomerce = true;
+                        } else {
+                            alert("No se activo correctamente el producto seleccionado");
+                        }
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.loading = false);
+
+                },
+                InActive: async function () {
+                    var params = new URLSearchParams();
+                    params.append('Active', 'false'  );
+                    params.append('ItemCode', '' + this.Producto.objeto.itemCode );
+                    await axios.post('../DataactiveItem', params, null).then(response => {
+                        if (response.data.code == 0) {
+                            this.Producto.objeto.isActiveEcomerce = false;
+                        } else {
+                            alert("No se desactivo correctamente el producto seleccionado");
+                        }
+
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.loading = false);
+                },
+            }
+        })

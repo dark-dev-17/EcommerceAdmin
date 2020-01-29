@@ -1,4 +1,5 @@
-﻿using EcommerceAdmin2.Models.Sistema;
+﻿using EcommerceAdmin2.Models.Documents;
+using EcommerceAdmin2.Models.Sistema;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,7 +17,6 @@ namespace EcommerceAdmin2.Models.BussinesPartner
         public string SplName { private set; get; }
         public bool IsActive { private set; get; }
         public bool IsActiveEcomerce { private set; get; }
-        
         // objetos
         private DBSqlServer SqlServer { get; set; }
         #endregion
@@ -41,7 +41,7 @@ namespace EcommerceAdmin2.Models.BussinesPartner
                 DataTable data = SqlServer.GetData(sqlStatement);
                 if (data.Rows.Count == 1)
                 {
-                    CardCode = data.Rows[0].ItemArray[0].ToString();
+                    this.CardCode = data.Rows[0].ItemArray[0].ToString();
                     CardName = data.Rows[0].ItemArray[1].ToString();
                     IsExists = true;
                 }
@@ -92,6 +92,31 @@ namespace EcommerceAdmin2.Models.BussinesPartner
                 }
             }
             return ListBussinesPartner;
+        }
+        public List<BussinesPartner> SelectAllactive()
+        {
+            try
+            {
+                string sqlStatement = string.Format("EXEC Eco_getCustomerActive @CardCode = '{0}'", " ");
+                List<BussinesPartner> bussinesPartners = new List<BussinesPartner>();
+                SqlDataReader data = SqlServer.GetDataReader(sqlStatement);
+                while (data.Read())
+                {
+                    BussinesPartner BussinesPartner = new BussinesPartner();
+                    BussinesPartner.CardCode = data.IsDBNull(0) ? "" : data.GetString(0) + "";
+                    BussinesPartner.CardName = data.IsDBNull(1) ? "" : data.GetString(1) + "";
+                    BussinesPartner.SplName = data.IsDBNull(2) ? "" : data.GetString(2) + "";
+                    BussinesPartner.IsActive = data.IsDBNull(3) ? false : data.GetString(3) == "Si" ? true : false;
+                    BussinesPartner.IsActiveEcomerce = data.IsDBNull(4) ? false : data.GetString(4) == "Si" ? true : false;
+                    bussinesPartners.Add(BussinesPartner);
+                }
+                data.Close();
+                return bussinesPartners;
+            }
+            catch (Exception Ex)
+            {
+                throw Ex;
+            }
         }
         public void GetBussinesPartnersBySalesEmp(List<int> IdSalesEmpl, List<BussinesPartner> List)
         {

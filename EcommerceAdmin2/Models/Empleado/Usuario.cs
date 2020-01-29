@@ -68,6 +68,57 @@ namespace EcommerceAdmin2.Models.Empleado
         {
             return Id;
         }
+        public bool AccessToAction(int USR_IdSplinnet, int action)
+        {
+            string Statement = string.Format("SELECT * FROM t03_permisos where clienteKey = '{0}' and t02_pk01 = '{1}' and t03_f001 = '1';", USR_IdSplinnet, action);
+            try
+            {
+                MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
+                if (DBMysql.CountDataReader(DataReader) == 1)
+                {
+                    DataReader.Close();
+                    return true;
+                }
+                else
+                {
+                    DataReader.Close();
+                    return false;
+                }
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool ValidPermisControlView(int USR_IdSplinnet, int action)
+        {
+            DBMysql = new DBMysql("Splinet");
+            DBMysql.OpenConnection();
+            bool access = AccessToAction(USR_IdSplinnet,action);
+            DBMysql.CloseConnection();
+            return access;
+        }
+        public bool ValidPermisControlView(int USR_IdSplinnet, int[] action)
+        {
+            DBMysql = new DBMysql("Splinet");
+            DBMysql.OpenConnection();
+            bool access = false;
+            foreach (int item in action)
+            {
+                access = AccessToAction(USR_IdSplinnet, item);
+                if (access) break;
+            }
+            DBMysql.CloseConnection();
+            return access;
+        }
         public void SetConnectionMysql(DBMysql DBMysql)
         {
             this.DBMysql = DBMysql;

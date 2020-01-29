@@ -2,57 +2,55 @@
 @{
     ViewData["Title"] = "Login";
 }
+    <div class="am-signin-wrapper" id="app_login">
+        
+        <div class="am-signin-box">
+            <div class="row no-gutters">
+                <div class="col-lg-5">
+                    <div>
 
-<div class="auth-wrapper" id="Login">
-    <div class="auth-content">
-        <div class="auth-bg">
-            <span class="r"></span>
-            <span class="r s"></span>
-            <span class="r s"></span>
-            <span class="r"></span>
-        </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="mb-4">
-                    <i class="feather icon-unlock auth-icon"></i>
-                </div>
-                <div v-if="loading === true">
-                    loading ... 
-                </div>
-                <div v-if="loading === false">
-                    <h3 class="mb-4">Administrador Ecommerce</h3>
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert" v-if="Error.Error === true">
-                        <strong>Error!</strong> {{ Error.Description }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert" v-if="loginSuccess === true">
-                        <strong>Success!</strong> Usuario y contraseña correctas
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form action="/" method="post" v-on:submit.prevent="doLogin">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" v-model="userData.User" placeholder="Usuario" required>
-                        </div>
-                        <div class="input-group mb-4">
-                            <input type="password" class="form-control" v-model="userData.Contrasena" placeholder="Contraseña" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary shadow-2 mb-4">Entrar</button>
-                    </form>
                 </div>
-               
+                <div class="col-lg-7">
+                    <div v-if="loading === true">
+                        validando información ...
+                    </div>
+                    <div v-if="loading === false">
+                        <h5 class="tx-gray-800 mg-b-25">Administrador Ecommerce</h5>
+                        <div class="alert alert-warning" role="alert" v-if="Error.Error === true">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                            <strong>Error!</strong> {{ Error.Description }}
+                        </div>
+                        <div class="alert alert-success" role="alert" v-if="loginSuccess === true">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                            Redirigiendo a admin ecommerce
+                        </div>
+                        <form action="/" method="post" v-on:submit.prevent="doLogin">
+                            <div class="form-group">
+                                <label class="form-control-label">Usuario Splinet:</label>
+                                <input type="text" name="email" class="form-control" placeholder="introduce tu usuario" v-model="userData.User">
+                            </div><!-- form-group -->
 
-            </div>
-        </div>
-    </div>
-</div>
+                            <div class="form-group">
+                                <label class="form-control-label">Contraseña:</label>
+                                <input type="password" name="password" class="form-control" placeholder="Introduce tu contraseña" v-model="userData.Contrasena">
+                            </div><!-- form-group -->
+                            <button type="submit" class="btn btn-block">Entrar</button>
+                        </form>
+                    </div>
+                </div><!-- col-7 -->
+            </div><!-- row -->
+            @*<p class="tx-center tx-white-5 tx-12 mg-t-15">Copyright &copy; 2017. All Rights Reserved. Amanda by ThemePixels</p>*@
+        </div><!-- signin-box -->
+    </div><!-- am-signin-wrapper -->
 @section Scripts {
     <script>
         var app_login = new Vue({
-            el: '#Login',
+            el: '#app_login',
             data: {
                 userData: {
                     User: "",
@@ -69,7 +67,12 @@
                 doLogin: function (evt) {
                     this.loading = true;
                     evt.preventDefault();
-                    axios.post('./Login/Create', this.userData).then(response => {
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    axios.post('@Url.Action("Create","Login")', this.userData,{headers: headers}).then(response => {
                         console.log(response.data);
                         this.Error.Error = response.data.error;
                         this.Error.Description = response.data.description;

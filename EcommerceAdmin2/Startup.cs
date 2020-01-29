@@ -24,12 +24,6 @@ namespace EcommerceAdmin2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
             services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
             services.AddSession(options =>
             {
@@ -37,6 +31,7 @@ namespace EcommerceAdmin2
                 options.Cookie.HttpOnly = true;
                 // Make the session cookie essential
                 options.Cookie.IsEssential = true;
+
             });
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -71,7 +66,15 @@ namespace EcommerceAdmin2
                 routes.MapRoute(
                     name: "DocumentLine",
                     template: "{controller=DocumentLines}/{action=List}/{DocEntry}/{DocType}");
-                
+                routes.MapRoute(
+                    name: "CotizacionesBussinessPartner",
+                    template: "{controller=Cotizaciones}/{action=BussinessPartner}/{id}");
+                routes.MapRoute(
+                    name: "DocumentBussinessPartner",
+                    template: "{controller=Document}/{action=BussinessPartner}/{id}");
+                routes.MapRoute(
+                    name: "Producto",
+                    template: "{controller=Producto}/{action=Show}/{id}");
             });
         }
     }

@@ -1,0 +1,492 @@
+﻿@model EcommerceAdmin2.Models.Empleado.Usuario
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Detalle producto: " + ViewData["ItemCode"];
+    
+}
+
+<div id="app_ProductoShow">
+
+    <div class="card pd-20 pd-sm-40">
+        <div>
+            <h6 class="card-body-title">@ViewData["Title"]</h6>
+            @*<p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>*@
+        </div>
+        <div>
+            <div class="table-responsive">
+                <div v-if="item.controls.isGettingData === true">
+                    cargando ...
+                </div>
+                <div v-if="item.controls.isGettingData === false">
+                    <table class="table ">
+                        <tr>
+                            <td><strong>Codigo</strong></td>
+                            <td colspan="1">{{ item.data.objeto.itemCode }}</td>
+                            <td><strong>Nombre</strong></td>
+                            <td colspan="1">{{  item.data.objeto.description }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Descripcion</strong></td>
+                            <td colspan="3">
+                                <div v-if="item.controls.isEditingLargeDescription == false">
+                                    {{  item.data.objeto.largeDescription }}
+                                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"),4))
+                                    {
+                                        <button class="btn btn-sm btn-secondary" v-on:click="item.controls.isEditingLargeDescription = true">Editar</button>
+                                    }
+                                </div>
+                                <div v-if="item.controls.isEditingLargeDescription == true">
+                                    <div class="form-group">
+                                        <textarea class="form-control" v-model=" item.data.objeto.largeDescription">{{  item.data.objeto.largeDescription }}</textarea>
+                                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 4))
+                                        {
+                                            <button class="btn btn-sm btn-secondary" v-on:click="item.controls.isEditingLargeDescription = false">Cancelar</button>
+                                            <button class="btn btn-sm btn-success" v-on:click="UpdateLargeDescription()">Guardar</button>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Categoria</strong></td>
+                            <td colspan="1">{{  item.data.objeto.category.description }}</td>
+                            <td><strong>Sub categoria</strong></td>
+                            <td colspan="1">{{  item.data.objeto.subCategory.description }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precio</strong></td>
+                            <td colspan="1">${{ formatPrice( item.data.objeto.unitPrice) }}</td>
+                            <td><strong>Descuento</strong></td>
+                            <td colspan="1">
+                                <span v-if=" item.data.objeto.discount < 0">No se aplica descuento</span>
+                                <span v-if=" item.data.objeto.discount >= 0">{{  item.data.objeto.discount }} %</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stock</strong></td>
+                            <td colspan="1">{{ formatPrice( item.data.objeto.stock) }}</td>
+                            <td><strong>Activo en ecommerce</strong></td>
+                            <td colspan="1">
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 4))
+                                {
+                                    <button v-if=" item.data.objeto.isActiveEcomerce == false" v-on:click="ActiveItem()" class="">Activar</button>
+                                    <button v-if=" item.data.objeto.isActiveEcomerce == true" v-on:click="InActive()" class="">Desactivar</button>
+                                }
+                                else
+                                {
+                                    <span v-if=" item.data.objeto.isActiveEcomerce == false">desactivado</span>
+                                    <span v-if=" item.data.objeto.isActiveEcomerce == true">Activo</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+            <div class="">
+                <div class="col-xl-12">
+                    <div class="card bd">
+                        <div class="card-header bd-b">
+                            <ul class="nav nav-tabs card-header-tabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Imagenes producto</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Información adicional</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#desccipcion" role="tab" aria-controls="contact" aria-selected="false">Descipción</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Ficha tecnica</a>
+                                </li>
+                            </ul>
+                        </div><!-- card-header -->
+                        <div class="card-body color-gray-lighter">
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    <div v-if="item.controls.isGettingImagesItem === true">
+                                        cargando imagenes del producto...
+                                    </div>
+                                    <div v-if="item.controls.isGettingImagesItem === false">
+                                        <nav class="navbar navbar-light bg-light justify-content-between">
+                                            <a class="navbar-brand">Producto: @ViewData["ItemCode"]</a>
+                                            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 7))
+                                            {
+                                                <form class="form-inline">
+                                                    <input class="form-control mr-sm-2" type="file" placeholder="Search" v-on:change="getImageItem($event)" aria-label="Search">
+                                                    <button class="btn btn-outline-success my-2 my-sm-0" type="button" v-on:click="UploadImageItem()">Subir imagen</button>
+                                                </form>
+                                            }
+
+                                        </nav>
+                                        <div class="row">
+                                            <div v-for="(image, index) in item.imagesItem.records">
+                                                <div class="card bd-0 wd-xs-300">
+                                                    <img class="card-img-top img-fluid" :src="image.ruta" alt="Image">
+                                                    <div class="card-body bd bd-t-0">
+                                                        {{ image.name }}
+                                                        <center>
+                                                            <div class="btn-group btn-group-sm " role="group" aria-label="Basic example">
+                                                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 7))
+                                                                {
+                                                                    <button type="button" class="btn btn-secondary" v-on:click="DeleteImageItem(index)">Eliminar</button>
+                                                                }
+                                                                    <a :href="image.ruta" target="_blank" class="btn btn-secondary">Ver</a>
+                                                            </div>
+                                                        </center>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                    <div v-if="item.controls.isGettingAdditionalDes === true">
+                                        cargando imagenes del producto...
+                                    </div>
+                                    <div v-if="item.controls.isGettingAdditionalDes === false">
+                                        <nav class="navbar navbar-light bg-light justify-content-between">
+                                            <a class="navbar-brand">Producto: @ViewData["ItemCode"]</a>
+                                            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 5))
+                                            {
+                                                <form class="form-inline">
+                                                    <input class="form-control mr-sm-2" type="file" placeholder="Search" v-on:change="getImageAdditional($event)" aria-label="Search">
+                                                    <button class="btn btn-outline-success my-2 my-sm-0" type="button" v-on:click="UploadImageAdditional()">Subir imagen</button>
+                                                </form>
+                                            }
+                                                
+                                        </nav>
+                                        <div class="row">
+                                            <div v-for="(image, index) in item.imagesAdditionalInformation.records">
+                                                <div class="card bd-0 wd-xs-300">
+                                                    <img class="card-img-top img-fluid" :src="image.ruta" alt="Image">
+                                                    <div class="card-body bd bd-t-0">
+                                                        {{ image.name }}
+                                                        <center>
+                                                            <div class="btn-group btn-group-sm " role="group" aria-label="Basic example">
+                                                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 5))
+                                                                {
+                                                                    <button type="button" class="btn btn-secondary" v-on:click="DeleteImageAdditionalInfo(index)">Eliminar</button>
+                                                                }
+                                                                <a :href="image.ruta" target="_blank" class="btn btn-secondary">Ver</a>
+                                                            </div>
+                                                        </center>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="desccipcion" role="tabpanel" aria-labelledby="contact-tab">
+                                    <div v-if="item.controls.isGettingDescription === true">
+                                        cargando imagenes del producto...
+                                    </div>
+                                    <div v-if="item.controls.isGettingDescription === false">
+                                        <nav class="navbar navbar-light bg-light justify-content-between">
+                                            <a class="navbar-brand">Producto: @ViewData["ItemCode"]</a>
+                                            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 6))
+                                            {
+                                                <form class="form-inline">
+                                                    <input class="form-control mr-sm-2" type="file" placeholder="Search" v-on:change="getImageDescription($event)" aria-label="Search">
+                                                    <button class="btn btn-outline-success my-2 my-sm-0" type="button" v-on:click="UploadImageDescription()">Subir imagen</button>
+                                                </form>
+                                            }
+                                        </nav>
+                                        <div class="row">
+                                            <div v-for="(image, index) in item.imagesDescipcion.records">
+                                                <div class="card bd-0 wd-xs-300">
+                                                    <img class="card-img-top img-fluid" :src="image.ruta" alt="Image">
+                                                    <div class="card-body bd bd-t-0">
+                                                        {{ image.name }}
+                                                        <center>
+                                                            <div class="btn-group btn-group-sm " role="group" aria-label="Basic example">
+                                                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 6))
+                                                                {
+                                                                    <button type="button" class="btn btn-secondary" v-on:click="DeleteImageDescription(index)">Eliminar</button>
+                                                                }
+                                                                <a :href="image.ruta" target="_blank" class="btn btn-secondary">Ver</a>
+                                                            </div>
+                                                        </center>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                                    ficha tecnica
+                                    <div v-if="item.controls.isGettingData === true">
+                                        cargando ficha tecnica del producto...
+                                    </div>
+                                    <div v-if="item.controls.isGettingData === false">
+                                        <embed :src="item.data.objeto.fichaTecnica.ruta" type="application/pdf"></embed>
+                                        <div class="embed-responsive embed-responsive-16by9">
+                                            <iframe class="embed-responsive-item" :src="item.data.objeto.fichaTecnica.ruta" typeof="" allowfullscreen></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- card-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+@section Scripts {
+    <script>
+        var app_ProductoShow = new Vue({
+            el: '#app_ProductoShow',
+            data: {
+                item: {
+                    itemCode: '@ViewData["ItemCode"]',
+                    data: null,
+                    imagesItem: null,
+                    imagesDescipcion: null,
+                    imagesAdditionalInformation: null,
+                    imagesTecnic: null,
+                    controls: {
+                        isGettingData: true,
+                        isGettingImagesItem: true,
+                        isGettingAdditionalDes: true,
+                        isGettingDescription: true,
+                        isEditingLargeDescription: false,
+                        isUploadingImgItem: false,
+                        isUploadingImgAdditionalInformation: false,
+                        isUploadingImgDescription: false
+                    },
+                    imagesUpload: {
+                        Item: null,
+                        AdditionalInformation: null,
+                        description: null,
+                    }
+
+                }
+            },
+            async mounted() {
+                await this.GetData();
+                await this.GetImagesProduct();
+                await this.GetImagesAdditionalInfor();
+                await this.GetImagesDesciption();
+            },
+            methods: {
+                DeleteImageDescription: async function (index) {
+                    var alertt = confirm("¿Deseas eliminar esta imagen?");
+                    if (alertt == true) {
+                        var params = new URLSearchParams();
+                        params.append('Filename', '' + this.item.imagesDescipcion.records[index].name);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        params.append('ImagessType', 'itemDescription');
+                        await axios.post('../DataDeleteFile',params).then(response => {
+                            console.log(response.data)
+                            this.item.imagesDescipcion.records.splice(index, 1);
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.isUploadingImgDescription = false)
+                    } else {
+
+                    }
+                },
+                DeleteImageAdditionalInfo: async function (index) {
+                    var alertt = confirm("¿Deseas eliminar esta imagen?");
+                    if (alertt == true) {
+                        var params = new URLSearchParams();
+                        params.append('Filename', '' + this.item.imagesAdditionalInformation.records[index].name);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        params.append('ImagessType', 'itemAdditionalInfo');
+                        await axios.post('../DataDeleteFile',params).then(response => {
+                            console.log(response.data)
+                            this.item.imagesAdditionalInformation.records.splice(index, 1);
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.isUploadingImgAdditionalInformation = false)
+                    } else {
+
+                    }
+                },
+                DeleteImageItem: async function (index) {
+                    var alertt = confirm("¿Deseas eliminar esta imagen?");
+                    if (alertt == true) {
+                        var params = new URLSearchParams();
+                        params.append('Filename', '' + this.item.imagesItem.records[index].name);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        params.append('ImagessType', 'Producto');
+                        await axios.post('../DataDeleteFile',params).then(response => {
+                            console.log(response.data)
+                            this.item.imagesItem.records.splice(index, 1);
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.loading = false)
+                    } else {
+
+                    }
+                },
+                UploadImageItem: async function (type) {
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'multipart/form-data',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    this.item.controls.isUploadingImgItem = true
+                    let params = new FormData();
+                        params.append('FormFile', this.item.imagesUpload.item);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        params.append('ImagessType', 'Producto' );
+                    await axios.post('../DataUpdateFile',params,{headers: headers}).then(response => {
+                        this.GetImagesProduct();
+                        alert("Imagen agregada")
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isUploadingImgItem = false)
+                },
+                UploadImageAdditional: async function (type) {
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'multipart/form-data',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    this.item.controls.isUploadingImgAdditionalInformation = true
+                    let params = new FormData();
+                        params.append('FormFile', this.item.imagesUpload.AdditionalInformation);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        params.append('ImagessType', 'itemAdditionalInfo' );
+                    await axios.post('../DataUpdateFile',params,{headers: headers}).then(response => {
+                        this.GetImagesAdditionalInfor();
+                        alert("Imagen agregada")
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isUploadingImgAdditionalInformation = false)
+                },
+                UploadImageDescription: async function (type) {
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'multipart/form-data',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    this.item.controls.isUploadingImgDescription = true
+                    let params = new FormData();
+                        params.append('FormFile', this.item.imagesUpload.description);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        params.append('ImagessType', 'itemDescription' );
+                    await axios.post('../DataUpdateFile',params,{headers: headers}).then(response => {
+                        this.GetImagesDesciption();
+                        alert("Imagen agregada")
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isUploadingImgDescription = false)
+                },
+                getImageItem(event) {
+                    this.item.imagesUpload.item = event.target.files[0];
+                    console.log(this.item.imagesUpload.item);
+                },
+                getImageAdditional(event) {
+                    this.item.imagesUpload.AdditionalInformation = event.target.files[0];
+                    console.log(this.item.imagesUpload.AdditionalInformation);
+                },
+                getImageDescription(event) {
+                    this.item.imagesUpload.description = event.target.files[0];
+                    console.log(this.item.imagesUpload.description);
+                },
+                GetImagesDesciption: async function () {
+                    var params = new URLSearchParams();
+                    params.append('ItemCode', '' + this.item.itemCode);
+                    await axios.post('../DataGetFilesItemDescription',params).then(response => {
+                        this.item.imagesDescipcion = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isGettingDescription = false)
+                },
+                GetImagesAdditionalInfor: async function () {
+                    var params = new URLSearchParams();
+                    params.append('ItemCode', '' + this.item.itemCode);
+                    await axios.post('../DataGetFilesItemAditionalInfo',params).then(response => {
+                        this.item.imagesAdditionalInformation = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isGettingAdditionalDes = false)
+                },
+                GetImagesProduct: async function () {
+                    var params = new URLSearchParams();
+                    params.append('ItemCode', '' + this.item.itemCode);
+                    await axios.post('../DataGetFilesItem',params).then(response => {
+                        this.item.imagesItem = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isGettingImagesItem = false)
+                },
+                UpdateLargeDescription: async function () {
+                    var alertt = confirm("¿Deseas guardar la información?");
+                    if (alertt == true) {
+                        var params = new URLSearchParams();
+                        params.append('LargeDescription', '' + this.item.data.objeto.largeDescription);
+                        params.append('ItemCode', '' + this.item.itemCode);
+                        await axios.post('../DataUpdateLargeDescription',params).then(response => {
+                            alert("Se ha guardado la información")
+                            this.item.controls.isEditingLargeDescription = false
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.item.controls.isGettingData = false)
+                    } else {
+
+                    }
+                },
+                ActiveItem: async function () {
+                    var params = new URLSearchParams();
+                    params.append('Active', 'true');
+                    params.append('ItemCode', '' + this.item.itemCode );
+                    await axios.post('../DataactiveItem', params,null).then(response => {
+                        if (response.data.code == 0) {
+                            this.item.data.objeto.isActiveEcomerce = true;
+                        } else {
+                            alert("No se activo correctamente el producto seleccionado");
+                        }
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isGettingData = false);
+
+                },
+                InActive: async function () {
+                    var params = new URLSearchParams();
+                    params.append('Active', 'false'  );
+                    params.append('ItemCode', '' + this.item.itemCode );
+                    await axios.post('../DataactiveItem', params, null).then(response => {
+                        if (response.data.code == 0) {
+                            this.item.data.objeto.isActiveEcomerce = false;
+                        } else {
+                            alert("No se desactivo correctamente el producto seleccionado");
+                        }
+
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isGettingData = false);
+                },
+                GetData: async function () {
+                    var params = new URLSearchParams();
+                    params.append('ItemCode', '' + this.item.itemCode);
+                    await axios.post('../DataShow', params).then(response => {
+                        if (response.data.objeto != null || response.data.objeto != undefined) {
+                            this.item.data = response.data;
+                            console.log(this.item.data);
+                        } else {
+                            alert("Producto no encontrado")
+                        }
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.item.controls.isGettingData = false)
+                },
+                formatPrice: function (value) {
+                    let val = (value/1).toFixed(2).replace('.', ',')
+                    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                }
+            }
+        })
+    </script>
+}
+
+
+
+

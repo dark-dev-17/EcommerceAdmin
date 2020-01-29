@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Usuarios splinnet";
+}
+    <div id="app_accessSystem">
+        <div class="card pd-20 pd-sm-40">
+            <div>
+                <h6 class="card-body-title">@ViewData["Title"]</h6>
+                @*<p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>*@
+            </div>
+            <div class="row">
+                <div class="col-xl-12">
+                    <div v-if="usuarios.isGetting == true">
+                        Obteniendo registros.....
+                    </div>
+                    <div v-if="usuarios.isGetting == false">
+                        <table class="table table-bordered table-sm table-responsive-sm" id="table_users">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Usuario</th>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Sociedad</th>
+                                    <th>area</th>
+                                    <th>Acccions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in usuarios.data.records">
+                                    <td>{{ item.idSplinnet }}</td>
+                                    <td>{{ item.username }}</td>
+                                    <td>{{ item.nombre }} {{ item.apellidoPaterno }} {{ item.apellidomaterno }}</td>
+                                    <td>{{ item.correo }}</td>
+                                    <td>{{ item.sociedad }}</td>
+                                    <td>{{ item.idArea }}</td>
+                                    <td><button v-on:click="GetUsersPermissions(index)">Ver/editar permisos</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- template for the modal component -->
+        @*<script type="text/x-template" id="modal-template">
+            <transition name="modal">
+                <div class="modal-mask">
+                    <div class="modal-wrapper">
+                        <div class="modal-container" style="width: 1500px;">
+
+                            <div class="modal-header">
+                                <slot name="header">
+                                    Acciones
+                                </slot>
+                            </div>
+
+                            <div class="modal-body">
+                                <slot name="body">
+                                    default body
+                                </slot>
+                            </div>
+
+                            <div class="modal-footer">
+                                <slot name="footer">
+                                    default footer
+                                    <button class="modal-default-button" @@click="$emit('close')">
+                                        OK
+                                    </button>
+                                </slot>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </script>*@
+        <!-- LARGE MODAL -->
+        <div id="modal_modifyPermiss" class="modal fade">
+            <div class="modal-dialog modal-lg" style="width: 80%; max-width:80%;" role="document">
+                <div class="modal-content tx-size-sm">
+                    <div class="modal-header pd-x-20">
+                        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">Accesos</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="CloseModal()">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body pd-20">
+                        <h4 class=" lh-3 mg-b-20">Acciones</h4>
+                        <p class="mg-b-5">
+                            <div v-if="permissions.isGetting == true">
+                                Obteniendo informacion de permisos
+                            </div>
+                            <div v-if="permissions.isGetting == false">
+                                <dl v-for="(item, index) in permissions.data.records">
+                                    <dt>{{ item.description }}</dt>
+                                    <dd v-for="(subitem, subindex) in item.acciones" style="margin-left: 30px;">
+                                        <label class="ckbox">
+                                            <input type="checkbox" v-model="subitem.isAccess">
+                                            <span>{{ subitem.description }}</span>
+                                        </label>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </p>
+                    </div><!-- modal-body -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info pd-x-20" v-on:click="ChangeUsersPermissions()">Save changes</button>
+                        <button type="button" class="btn btn-secondary pd-x-20" data-dismiss="modal" v-on:click="CloseModal()">Close</button>
+                    </div>
+                </div>
+            </div><!-- modal-dialog -->
+        </div><!-- modal -->
+    </div>
+
+@section Scripts {
+    <script>
+        //Vue.component('modal', {
+        //    template: '#modal-template'
+        //})
+        var app_accessSystem = new Vue({
+            el: '#app_accessSystem',
+            data: {
+                usuarios: {
+                    data: null,
+                    isGetting: true,
+                    idUserSelected: null
+                },
+                permissions: {
+                    data: null,
+                    isGetting: true
+                },
+                showModal: false
+            },
+            mounted() {
+                this.GetUsers()
+            },
+            methods: {
+                CloseModal: function () {
+                     $("#modal_modifyPermiss").modal("hide");
+                },
+                ChangeUsersPermissions: async function () {
+                    
+                    this.permissions.isGetting = true
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    await axios.post('@Url.Action("DataChangePermissions","AccessCtr")', this.permissions.data.records, { headers: headers }).then(response => {
+                        alert("Cambios guardados")
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.permissions.isGetting = false)
+                },
+                GetUsersPermissions: async function (USIndex) {
+                    this.showModal = false
+                    //this.permissions.isGetting = true
+                    $("#modal_modifyPermiss").modal("show");
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'multipart/form-data',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    this.usuarios.idUserSelected = this.usuarios.data.records[USIndex].idSplinnet
+                    let params = new FormData();
+                    params.append('user', this.usuarios.data.records[USIndex].idSplinnet);
+                    await axios.post('@Url.Action("DataGetAccionsByUser","AccessCtr")', params, { headers: headers }).then(response => {
+                        this.permissions.data = response.data
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.permissions.isGetting = false)
+                },
+                GetUsers: async function () {
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                    const headers = {
+                        'Content-Type': 'multipart/form-data',
+                        'RequestVerificationToken': RequestVerificationToken
+                    }
+                    let params = new FormData();
+                    await axios.post('../Empleado/DataListAll', params, { headers: headers }).then(response => {
+                        this.usuarios.data = response.data
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.usuarios.isGetting = false)
+                    $('#table_users').DataTable();
+                }
+            }
+        });
+    </script>    
+    
+}

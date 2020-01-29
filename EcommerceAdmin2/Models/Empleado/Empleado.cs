@@ -23,12 +23,20 @@ namespace EcommerceAdmin2.Models.Empleado
         private string ErrorMessage;
         #endregion
         #region Constructores
+        public Empleado()
+        {
+        }
         public Empleado(DBMysql DBMysql)
         {
             this.DBMysql = DBMysql;
         }
+
         #endregion
         #region Metodos
+        public void setConectionMysql(DBMysql DBMysql)
+        {
+            this.DBMysql = DBMysql;
+        }
         public int GetEmpleado(int Id)
         {
             string Statement = string.Format("SELECT ID,username,email,nombre,apaterno,amaterno,id_area,sociedad FROM signup where ID = '{0}';", Id);
@@ -48,7 +56,7 @@ namespace EcommerceAdmin2.Models.Empleado
                     IdArea = DataReader.IsDBNull(6) ? 0 : DataReader.GetInt32(6);
                     Sociedad = DataReader.IsDBNull(7) ? "" : DataReader.GetString(7);
                     DataReader.Close();
-                    Id_sap = GetIdSapDB(Id);
+                    //Id_sap = GetIdSapDB(Id);
                 }
                 else
                 {
@@ -72,26 +80,28 @@ namespace EcommerceAdmin2.Models.Empleado
             }
             return ResponseProces;
         }
-        public List<int> GetIdSapDB(int Id)
+        public List<Empleado> SelectAllSplit()
         {
-            List<int> ListIDSap = new List<int>();
-            string Statement = string.Format("SELECT id_sap FROM id_split_sap where id_splittel = '{0}';", Id);
+            string Statement = string.Format("SELECT ID,username,email,nombre,apaterno,amaterno,id_area,sociedad FROM signup ");
             try
             {
                 MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
-                if (DataReader.HasRows)
+                List<Empleado> empleados = new List<Empleado>();
+                while (DataReader.Read())
                 {
-                    while (DataReader.Read())
-                    {
-                        ListIDSap.Add(DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetInt32(0));
-                    }
-                    DataReader.Close();
+                    Empleado empleado = new Empleado();
+                    empleado.IdSplinnet = DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetUInt32(0);
+                    empleado.Username = DataReader.IsDBNull(1) ? "" : DataReader.GetString(1);
+                    empleado.Correo = DataReader.IsDBNull(2) ? "" : DataReader.GetString(2);
+                    empleado.Nombre = DataReader.IsDBNull(3) ? "" : DataReader.GetString(3);
+                    empleado.ApellidoPaterno = DataReader.IsDBNull(4) ? "" : DataReader.GetString(4);
+                    empleado.Apellidomaterno = DataReader.IsDBNull(5) ? "" : DataReader.GetString(5);
+                    empleado.IdArea = DataReader.IsDBNull(6) ? 0 : DataReader.GetInt32(6);
+                    empleado.Sociedad = DataReader.IsDBNull(7) ? "" : DataReader.GetString(7);
+                    empleados.Add(empleado);
                 }
-                else
-                {
-                    ErrorMessage = "Sin registros";
-                }
-                
+                DataReader.Close();
+                return empleados;
             }
             catch (DBException ex)
             {
@@ -105,7 +115,40 @@ namespace EcommerceAdmin2.Models.Empleado
             {
                 throw ex;
             }
-            return ListIDSap;
+        }
+        public void GetIdSapDB(int Id)
+        {
+            Id_sap = new List<int>();
+            string Statement = string.Format("SELECT id_sap FROM id_split_sap where id_splittel = '{0}';", Id);
+            try
+            {
+                MySqlDataReader DataReader = DBMysql.DoQuery(Statement);
+                if (DataReader.HasRows)
+                {
+                    while (DataReader.Read())
+                    {
+                        Id_sap.Add(DataReader.IsDBNull(0) ? 0 : (int)DataReader.GetInt32(0));
+                    }
+                    DataReader.Close();
+                }
+                else
+                {
+                    ErrorMessage = "Sin registros";
+                }
+                DataReader.Close();
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #region IDisposable Support

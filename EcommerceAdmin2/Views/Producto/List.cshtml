@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewData["Title"] = "Productos";
+}
+<div id="app_DocumentList">
+
+    <div class="card pd-20 pd-sm-40">
+        <div>
+            <h6 class="card-body-title">@ViewData["Title"]</h6>
+            @*<p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>*@
+        </div>
+        <div>
+            <div class="table-responsive">
+                <div v-if="loading === true">
+                    cargando ...
+                </div>
+                <div v-if="loading === false">
+                    <div v-if="RecordCound == 0"><h1>Sin registros</h1></div>
+                    <div v-if="RecordCound > 0">
+                        <table class="table table-bordered table-sm table-responsive-sm" id="table_productos">
+                            <thead>
+                                <tr>
+                                    <th>Articulo</th>
+                                    <th>Descripcion</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Activo en ecomerce</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in userData.records">
+                                    <td><a href="#" v-on:click="ShowItem(index)" title="Ver articulo" class="">{{ item.itemCode }}</a></td>
+                                    <td>{{ item.description }}</td>
+                                    <td>${{ formatPrice(item.unitPrice) }}</td>
+                                    <td>
+                                        <span v-if="item.stock > 0" class="badge badge-success">{{ item.stock }}</span>
+                                        <span v-else class="badge badge-danger">{{ item.stock }}</span>
+                                    </td>
+                                    <td>
+                                        <button v-if="item.isActiveEcomerce == false" v-on:click="ActiveItem(index)" class="">Activar</button>
+                                        <button v-if="item.isActiveEcomerce == true" v-on:click="InActive(index)" class="">Desactivar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        var app_login = new Vue({
+            el: '#app_DocumentList',
+            data: {
+                userData: {},
+                Error: {
+                    Error: false,
+                    Description: ""
+                },
+                RecordCound: 0,
+                loading: true
+            },
+            async mounted() {
+                this.GetListProductos()
+            },
+            methods: {
+                formatPrice: function (value) {
+                    let val = (value / 1).toFixed(2).replace('.', ',')
+                    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                },
+                GetListProductos: async function () {
+                    RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
+                        const headers = {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': RequestVerificationToken
+                    }
+                    await axios.post('./DataList', null,headers).then(response => {
+                        this.userData = response.data;
+                        this.RecordCound = this.userData.count;
+                        console.log(this.userData);
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.loading = false);
+                    $('#table_productos').DataTable();
+                },
+                ActiveItem: async function (index) {
+                    var params = new URLSearchParams();
+                    params.append('Active', 'true');
+                    params.append('ItemCode', '' + this.userData.records[index].itemCode );
+                    await axios.post('./DataactiveItem', params,null).then(response => {
+                        if (response.data.code == 0) {
+                            this.userData.records[index].isActiveEcomerce = true;
+                        } else {
+                            alert("No se activo correctamente el producto seleccionado");
+                        }
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.loading = false);
+                    
+                },
+                InActive: async function (index) {
+                    var params = new URLSearchParams();
+                    params.append('Active', 'false'  );
+                    params.append('ItemCode', '' + this.userData.records[index].itemCode );
+                    await axios.post('./DataactiveItem', params, null).then(response => {
+                        if (response.data.code == 0) {
+                            this.userData.records[index].isActiveEcomerce = false;
+                        } else {
+                            alert("No se desactivo correctamente el producto seleccionado");
+                        }
+                        
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.loading = false);
+                },
+                ShowItem: function (index) {
+                    this.userData.records[index].itemCode
+                    window.location = './Show/' + this.userData.records[index].itemCode;
+                }
+            },
+            filters: {
+                momentFull: function (date) {
+                    return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+                },
+                moment: function (date) {
+                    return moment(date).locale('es').format('MMMM Do YYYY');
+                }
+            }
+        })
+    </script>
+}
+
+
+
