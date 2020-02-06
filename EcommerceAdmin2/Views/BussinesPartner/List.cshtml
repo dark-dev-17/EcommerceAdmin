@@ -3,54 +3,44 @@
     ViewData["Title"] = "Mis clientes";
 }
     <div id="app_BussinesPartnerList">
-        
-        <div class="card pd-20 pd-sm-40">
-            <div>
-                <h6 class="card-body-title">Mis clientes</h6>
-                @*<p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>*@
-            </div>
-            <div>
-                <div class="table-responsive">
-                    <div v-if="loading === true && userData == null">
-                        cargando ...
-                    </div>
-                    <div v-if="loading === false && userData != null">
-                        @*<div v-if="RecordCound == 0"><h1>Sin registros</h1></div>
-                        <div v-if="RecordCound > 0">*@
-                            <table class="table table-bordered table-sm table-responsive-sm" id="table_misclientes">
-                                <thead>
-                                    <tr>
-                                        <th>Codigo</th>
-                                        <th>Nombre</th>
-                                        <th>Ejecutivo</th>
-                                        <th>Activo en ecommerce</th>
-                                        <th>Cotizaciones Ecom</th>
-                                        <th>Pedidos Proc</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in userData.records">
-                                        <td>{{ item.cardCode }}</td>
-                                        <td>{{ item.cardName }}</td>
-                                        <td>{{ item.splName }}</td>
-                                        <td>
-                                            <div v-if="item.isActiveEcomerce === true"><span class="square-8 bg-success mg-r-5 rounded-circle"></span> Activo</div>
-                                            <div v-if="item.isActiveEcomerce === false"><span class="square-8 bg-danger mg-r-5 rounded-circle"></span> Inactivo</div>
-                                        </td>
-                                        <td><button class="button" v-on:click="verCotizacionesEcomerce(item.cardCode)">Ver</button></td>
-                                        <td><button class="button" v-on:click="verPedidosEnProceso(item.cardCode)">Ver</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        @*</div>*@
-                    </div>
+        <div class="br-section-wrapper">
+            <div class="table-wrapper">
+                <div v-if="loading === true && userData == null">
+                    cargando ...
+                </div>
+                <div v-if="loading === false && userData != null">
+                    <table class="table display responsive nowrap display compact" id="table_misclientes">
+                        <thead>
+                            <tr>
+                                <th>Codigo</th>
+                                <th>Nombre</th>
+                                <th>Ejecutivo</th>
+                                <th>Activo en ecommerce</th>
+                                <th>Cotizaciones Ecom</th>
+                                <th>Pedidos Proc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in userData.records">
+                                <td> <a href="#" v-on:click="verCliente(item.cardCode)" title="ver dashboard 360">{{ item.cardCode }}</a> </td>
+                                <td>{{ item.cardName }}</td>
+                                <td>{{ item.splName }}</td>
+                                <td>
+                                    <div v-if="item.isActiveEcomerce === true"><span class="square-8 bg-success mg-r-5 rounded-circle"></span> Activo</div>
+                                    <div v-if="item.isActiveEcomerce === false"><span class="square-8 bg-danger mg-r-5 rounded-circle"></span> Inactivo</div>
+                                </td>
+                                <td><button class="btn btn-sm btn-outline-success" v-on:click="verCotizacionesEcomerce(item.cardCode)" >Ver</button></td>
+                                <td><button class="btn btn-sm btn-outline-success" v-on:click="verPedidosEnProceso(item.cardCode)">Ver</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
 @section Scripts {
-    <script>
+<script>
         var app_login = new Vue({
             el: '#app_BussinesPartnerList',
             data: {
@@ -78,9 +68,12 @@
                 },
                 verPedidosEnProceso: function (CardCode) {
                     window.location = '../Document/BussinessPartner/' + CardCode ;
+                },
+                verCliente: function (CardCode) {
+                    window.location = './Dashboard360/' + CardCode ;
                 }
             }
         })
-    </script>
+</script>
 }
 

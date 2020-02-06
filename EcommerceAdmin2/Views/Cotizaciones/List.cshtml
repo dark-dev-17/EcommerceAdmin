@@ -2,54 +2,44 @@
 @{
     ViewData["Title"] = "Cotizaciones Ecommerce";
 }
-<div id="app_ListCotizacionesEcomerce">
-
-    <div class="card pd-20 pd-sm-40">
-        <div>
-            <h6 class="card-body-title">Cotizaciones Ecommerce</h6>
-            @*<p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>*@
-        </div>
-        <div>
-            <div class="table-responsive">
+    <div id="app_ListCotizacionesEcomerce">
+        <div class="br-section-wrapper">
+            <div class="table-wrapper">
                 <div v-if="loading === true">
                     cargando ...
                 </div>
                 <div v-if="loading === false">
-                    <div v-if="RecordCound == 0"><h1>Sin registros</h1></div>
-                    <div v-if="RecordCound > 0">
-                        <table class="table table-bordered table-sm table-responsive-sm" id="DocumentosCotizaciones">
-                            <thead>
-                                <tr>
-                                    <th>No.Ecom</th>
-                                    <th>Cliente</th>
-                                    <th>Nombre</th>
-                                    <th>Fecha</th>
-                                    <th>Total</th>
-                                    <th>Moneda</th>
-                                    <th>Tipo de cambio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in userData.records">
+                    <table class="table display responsive nowrap " id="DocumentosCotizaciones">
+                        <thead>
+                            <tr>
+                                <th>No.Ecom</th>
+                                <th>Cliente</th>
+                                <th>Nombre</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Moneda</th>
+                                <th>Tipo de cambio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in userData.records">
 
-                                    <td><a href="#" v-on:click="ShowDocumentLines(item.docNumEcommerce)" title="Ver articulos" class="">{{ item.docNumEcommerce }}</a></td>
-                                    <td>{{ item.cardCode }}</td>
-                                    <td>{{ item.cardname }}</td>
-                                    <td>{{ item.docDate | moment }}</td>
-                                    <td>${{ formatPrice(item.docTotal) }}</td>
-                                    <td>{{ item.docCur }}</td>
-                                    <td>${{ formatPrice(item.docRate) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                <td><a href="#" v-on:click="ShowDocumentLines(item.docNumEcommerce)" title="Ver articulos" class="">{{ item.docNumEcommerce }}</a></td>
+                                <td>{{ item.cardCode }}</td>
+                                <td>{{ item.cardname }}</td>
+                                <td>{{ item.docDate | moment }}</td>
+                                <td>${{ formatPrice(item.docTotal) }}</td>
+                                <td>{{ item.docCur }}</td>
+                                <td>${{ formatPrice(item.docRate) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-</div>
 @section Scripts {
-    <script>
+<script>
         var app_login = new Vue({
             el: '#app_ListCotizacionesEcomerce',
             data: {
@@ -96,7 +86,7 @@
             }
 
         })
-    </script>
+ </script>
 }
 
 

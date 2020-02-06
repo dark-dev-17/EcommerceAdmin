@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,8 +22,9 @@ namespace EcommerceAdmin2.Models.Produto
         public double UnitPrice { get; private set; }
         public double Discount { get; private set; }
         public double Stock { get; private set ; }
+        public double Quantity { get; private set ; }
         public bool IsActiveEcomerce { get; private set; }
-
+        private DBSqlServer SqlServer { get; set; }
         private DBMysql DBMysql;
         #endregion
         #region Constructores
@@ -34,8 +36,17 @@ namespace EcommerceAdmin2.Models.Produto
         {
             this.DBMysql = DBMysql;
         }
+        public Articulos(DBSqlServer SqlServer)
+        {
+            this.SqlServer = SqlServer;
+        }
         #endregion
         #region Metodos  
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ItemCode"></param>
+        /// <returns></returns>
         public bool FindByID(string ItemCode)
         {
             string Statement = string.Format("SELECT * FROM Admin_producto_categoria_subcategoria where codigo = '{0}';", ItemCode);
@@ -79,6 +90,10 @@ namespace EcommerceAdmin2.Models.Produto
                 throw ex;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<Articulos> SelectAll()
         {
             List<Articulos> Lista = new List<Articulos>();
@@ -120,6 +135,12 @@ namespace EcommerceAdmin2.Models.Produto
                 throw ex;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="active"></param>
+        /// <param name="ItemCode"></param>
+        /// <returns></returns>
         public bool ActiveEcomerce(bool active,string ItemCode)
         {
             string Statement = string.Format("update catalogo_productos set activo = '{0}'  where codigo = '{1}';",(active ? "si" : "no"), ItemCode);
@@ -148,6 +169,12 @@ namespace EcommerceAdmin2.Models.Produto
                 throw ex;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ItemCode"></param>
+        /// <param name="LargeDescription"></param>
+        /// <returns></returns>
         public bool UpdateLargeDescription(string ItemCode, string LargeDescription)
         {
             string Statement = string.Format("update `catalogo_descripciones` as t01 set t01.desc_larga = '{0}'  where t01.id_desc_larga = (select id_desc_larga from catalogo_productos where codigo = '{1}')", LargeDescription, ItemCode);
@@ -174,6 +201,86 @@ namespace EcommerceAdmin2.Models.Produto
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public List<Articulos> GetArticulosTopByQuantity(string CardCode)
+        {
+            string statement = string.Format("EXEC Eco_GetTop5ItemsByQuantityByCustomer @CardCode = '{0}'", CardCode);
+            SqlDataReader data = null;
+            List<Articulos> List = null;
+            try
+            {
+                data = SqlServer.GetDataReader(statement);
+                if (!data.HasRows)
+                {
+                    throw new DBException("No existen registros");
+                }
+                List = new List<Articulos>();
+                while (data.Read())
+                {
+                    List.Add(new Articulos
+                    {
+                        ItemCode = data.GetString(0),
+                        Description = data.GetString(1),
+                        Quantity = double.Parse(data.GetDecimal(2) + ""),
+                    }); ;
+                }
+                return List;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (data != null)
+                {
+                    data.Close();
+                }
+            }
+        }
+        public List<Articulos> GetArticulosTopByPrice(string CardCode)
+        {
+            string statement = string.Format("EXEC Eco_GetTop5ItemsByPriceByCustomer @CardCode = '{0}'", CardCode);
+            SqlDataReader data = null;
+            List<Articulos> List = null;
+            try
+            {
+                data = SqlServer.GetDataReader(statement);
+                if (!data.HasRows)
+                {
+                    throw new DBException("No existen registros");
+                }
+                List = new List<Articulos>();
+                while (data.Read())
+                {
+                    List.Add(new Articulos
+                    {
+                        ItemCode = data.GetString(0),
+                        Description = data.GetString(1),
+                        UnitPrice = double.Parse(data.GetDecimal(2) + ""),
+                    }); ;
+                }
+                return List;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if(data != null)
+                {
+                    data.Close();
+                }
             }
         }
         #endregion

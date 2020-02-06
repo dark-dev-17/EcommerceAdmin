@@ -2,26 +2,27 @@
 @{
     ViewData["Title"] = "Login";
 }
-    <div class="am-signin-wrapper" id="app_login">
-        
-        <div class="am-signin-box">
-            <div class="row no-gutters">
-                <div class="col-lg-5">
-                    <div>
 
+    <div id="app_login">
+        <div class="d-flex align-items-center justify-content-center bg-br-primary ht-100v">
+            <div class="login-wrapper wd-300 wd-xs-350 pd-25 pd-xs-40 bg-white rounded shadow-base">
+                <div class="signin-logo tx-center tx-28 tx-bold tx-inverse"><span class="tx-normal">Grupo Splittel</span></div>
+                <div class="tx-center mg-b-60">Administrador Ecommerce</div>
+                <div v-if="loading === true">
+                    <div class="alert alert-secondary" role="alert" v-if="loginSuccess === true">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        validando información...
                     </div>
                 </div>
-                <div class="col-lg-7">
-                    <div v-if="loading === true">
-                        validando información ...
-                    </div>
-                    <div v-if="loading === false">
-                        <h5 class="tx-gray-800 mg-b-25">Administrador Ecommerce</h5>
+                <div v-if="loading === false">
+                    <form class="form-auth-small" action="/" method="post" v-on:submit.prevent="doLogin">
                         <div class="alert alert-warning" role="alert" v-if="Error.Error === true">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">×</span>
                             </button>
-                            <strong>Error!</strong> {{ Error.Description }}
+                            <strong></strong> {{ Error.Description }}
                         </div>
                         <div class="alert alert-success" role="alert" v-if="loginSuccess === true">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -29,24 +30,22 @@
                             </button>
                             Redirigiendo a admin ecommerce
                         </div>
-                        <form action="/" method="post" v-on:submit.prevent="doLogin">
-                            <div class="form-group">
-                                <label class="form-control-label">Usuario Splinet:</label>
-                                <input type="text" name="email" class="form-control" placeholder="introduce tu usuario" v-model="userData.User">
-                            </div><!-- form-group -->
-
-                            <div class="form-group">
-                                <label class="form-control-label">Contraseña:</label>
-                                <input type="password" name="password" class="form-control" placeholder="Introduce tu contraseña" v-model="userData.Contrasena">
-                            </div><!-- form-group -->
-                            <button type="submit" class="btn btn-block">Entrar</button>
-                        </form>
-                    </div>
-                </div><!-- col-7 -->
-            </div><!-- row -->
-            @*<p class="tx-center tx-white-5 tx-12 mg-t-15">Copyright &copy; 2017. All Rights Reserved. Amanda by ThemePixels</p>*@
-        </div><!-- signin-box -->
-    </div><!-- am-signin-wrapper -->
+                        <div class="form-group mt-4">
+                            <label for="signin-email" class="control-label sr-only">Usuario splinet</label>
+                            <input type="text" class="form-control round" id="signin-email" value="user@domain.com" v-model="userData.User" placeholder="Usuario splinet">
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password" class="control-label sr-only">Contraseña</label>
+                            <input type="password" class="form-control round" id="signin-password" value="thisisthepassword" v-model="userData.Contrasena" placeholder="Contraseña">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-round btn-block">Entrar</button>
+                        <div class="mt-4">
+                        </div>
+                    </form>
+                </div><!-- login-wrapper -->
+            </div><!-- d-flex -->
+        </div>
+    </div>
 @section Scripts {
     <script>
         var app_login = new Vue({

@@ -12,6 +12,7 @@ using EcommerceAdmin2.Models.BussinesPartner;
 using EcommerceAdmin2.Models;
 using EcommerceAdmin2.Models.Filters;
 using MySql.Data.MySqlClient;
+using EcommerceAdmin2.Models.Produto;
 
 namespace EcommerceAdmin2.Controllers
 {
@@ -41,7 +42,7 @@ namespace EcommerceAdmin2.Controllers
                 }
             }
         }
-        [AccessDataSession]
+        [AccessViewSession]
         public IActionResult List()
         {
             int USR_IdSplinnet = (int)HttpContext.Session.GetInt32("USR_IdSplinnet");
@@ -135,5 +136,111 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [AccessViewSession]
+        [HttpGet]
+        public IActionResult Dashboard360(string id)
+        {
+            ViewData["CardCode"] = id;
+            return View();
+        }
+        [AccessDataSession]
+        [HttpPost]
+        public IActionResult DataGetBussinesPartner(string CardCode)
+        {
+            try
+            {
+                using (DBSqlServer DBSqlServer = new DBSqlServer())
+                {
+                    DBSqlServer.OpenDataBaseAccess();
+                    BussinesPartner bussinesPartner = new BussinesPartner(DBSqlServer);
+                    bool foundbp = bussinesPartner.GetBussinesPartner(CardCode);
+                    DBSqlServer.CloseDataBaseAccess();
+                    Response<BussinesPartner> response = new Response<BussinesPartner> { Code = 0,Description="The bussines partner was found", Objeto = bussinesPartner, Type = "success" };
+                    return Ok(response);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [AccessDataSession]
+        [HttpPost]
+        public IActionResult DataGetArticulosTopByQuantity(string CardCode)
+        {
+            try
+            {
+                using (DBSqlServer DBSqlServer = new DBSqlServer())
+                {
+                    DBSqlServer.OpenDataBaseAccess();
+                    Articulos articulo = new Articulos(DBSqlServer);
+                    
+                    ResponseList<Articulos> response = new ResponseList<Articulos> {
+                        Code = 0,
+                        Description = "The items was found",
+                        Records = articulo.GetArticulosTopByQuantity(CardCode),
+                        Type = "success"
+                    };
+                    DBSqlServer.CloseDataBaseAccess();
+                    return Ok(response);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [AccessDataSession]
+        [HttpPost]
+        public IActionResult DataGetArticulosTopByPrice(string CardCode)
+        {
+            try
+            {
+                using (DBSqlServer DBSqlServer = new DBSqlServer())
+                {
+                    DBSqlServer.OpenDataBaseAccess();
+                    Articulos articulo = new Articulos(DBSqlServer);
+                    
+                    ResponseList<Articulos> response = new ResponseList<Articulos>
+                    {
+                        Code = 0,
+                        Description = "The items was found",
+                        Records = articulo.GetArticulosTopByPrice(CardCode),
+                        Type = "success"
+                    };
+                    DBSqlServer.CloseDataBaseAccess();
+                    return Ok(response);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

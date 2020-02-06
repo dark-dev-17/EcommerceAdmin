@@ -14,6 +14,20 @@ namespace EcommerceAdmin2.Models.BussinesPartner
         #region Propiedades
         public string CardCode { private set; get; }
         public string CardName { private set; get; }
+        public string ExtraDays { get; private set; }
+        public string DescriptPayment { get; private set; }
+        public double CreditLine { get; private set; }
+        public double Balance { get; private set; }
+        public string Phone2 { get; private set; }
+        public string E_Mail { get; private set; }
+        public string E_MailL_invoice { get; private set; }
+        public string E_MailL_account { get; private set; }
+        public string SlpName { get; private set; }
+        public string Email_employeSales { get; private set; }
+        public string Section { get; private set; }
+        public string MonexUSD { get; private set; }
+        public string MonexMXP { get; private set; }
+        public string Currency { get; private set; }
         public string SplName { private set; get; }
         public bool IsActive { private set; get; }
         public bool IsActiveEcomerce { private set; get; }
@@ -42,10 +56,32 @@ namespace EcommerceAdmin2.Models.BussinesPartner
                 if (data.Rows.Count == 1)
                 {
                     this.CardCode = data.Rows[0].ItemArray[0].ToString();
-                    CardName = data.Rows[0].ItemArray[1].ToString();
+                    this.CardName = data.Rows[0].ItemArray[1].ToString();
+                    this.ExtraDays = data.Rows[0].ItemArray[2].ToString();
+                    this.DescriptPayment = data.Rows[0].ItemArray[3].ToString();
+                    this.CreditLine = double.Parse(data.Rows[0].ItemArray[4].ToString());
+                    this.Balance = double.Parse(data.Rows[0].ItemArray[5].ToString());
+                    this.Phone2 = data.Rows[0].ItemArray[6].ToString();
+                    this.E_Mail = data.Rows[0].ItemArray[7].ToString();
+                    this.E_MailL_invoice = data.Rows[0].ItemArray[8].ToString();
+                    this.E_MailL_account = data.Rows[0].ItemArray[9].ToString();
+                    this.SlpName = data.Rows[0].ItemArray[10].ToString();
+                    this.Email_employeSales = data.Rows[0].ItemArray[11].ToString();
+                    this.Section = data.Rows[0].ItemArray[12].ToString();
+                    this.MonexUSD = data.Rows[0].ItemArray[13].ToString();
+                    this.MonexMXP = data.Rows[0].ItemArray[14].ToString();
+                    this.Currency = data.Rows[0].ItemArray[15].ToString();
                     IsExists = true;
                 }
+                else
+                {
+                    throw new DBException(string.Format("Cliente: [{0}] no encontrado", CardCode));
+                }
                 data.Dispose();
+            }
+            catch (DBException ex)
+            {
+                throw ex;
             }
             catch (Exception Ex)
             {

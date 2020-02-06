@@ -5,21 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin Ecom</title>
 
-    <environment include="Development">
-        @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />*@
-        <link href="~/Template1/amandahtml-20/template/lib/font-awesome/css/font-awesome.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/Ionicons/css/ionicons.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/jquery-toggles/toggles-full.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/highlightjs/github.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/datatables/jquery.dataTables.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/select2/css/select2.min.css" rel="stylesheet">
-        <link href="~/Template1/amandahtml-20/template/lib/rickshaw/rickshaw.min.css" rel="stylesheet">
-        <!-- Amanda CSS -->
-        <link rel="stylesheet" href="~/Template1/amandahtml-20/template/css/amanda.css">
+    <environment exclude="Development">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <!-- VENDOR CSS -->
+        <link href="~/template/lib/font-awesome/css/font-awesome.css" rel="stylesheet">
+        <link href="~/template/lib/Ionicons/css/ionicons.css" rel="stylesheet">
+        <link href="~/template/lib/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
+        <link href="~/template/lib/jquery-switchbutton/jquery.switchButton.css" rel="stylesheet">
+        <link href="~/template/lib/highlightjs/github.css" rel="stylesheet">
+        <link href="~/template/lib/SpinKit/spinkit.css" rel="stylesheet">
+        <link href="~/template/lib/datatables/jquery.dataTables.css" rel="stylesheet">
+        <link href="~/template/lib/rickshaw/rickshaw.min.css" rel="stylesheet">
+        <link href="~/template/lib/chartist/chartist.css" rel="stylesheet">
+        <!-- Bracket CSS -->
+        <link rel="stylesheet" href="~/template/css/bracket.css">
         <link rel="stylesheet" href="~/css/site.css">
     </environment>
-    <environment exclude="Development">
+    <environment include="Development">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
@@ -29,7 +31,8 @@
 <body>
     @Html.AntiForgeryToken()
     @using Microsoft.AspNetCore.Http;
-
+    @using EcommerceAdmin2.Models.Filters
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
     @inject IHttpContextAccessor HttpContextAccessor
     @{var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();}
     @if (controllerName == "Login")
@@ -38,219 +41,140 @@
     }
     else
     {
-        <div class="am-header">
-            <div class="am-header-left">
-                <a id="naviconLeft" href="" class="am-navicon d-none d-lg-flex"><i class="icon ion-navicon-round"></i></a>
-                <a id="naviconLeftMobile" href="" class="am-navicon d-lg-none"><i class="icon ion-navicon-round"></i></a>
-                <a href="index.html" class="am-logo">Ecommerce admin</a>
-            </div><!-- am-header-left -->
+    <div class="br-logo"><a href=""><span>[</span>Ecommerce<span>]</span></a></div>
+    <div class="br-sideleft overflow-y-auto">
+        <div class="br-sideleft-menu">
+            <a href="index.html" class="br-menu-link">
+                <div class="br-menu-item">
+                    <i class="menu-item-icon icon ion-ios-home-outline tx-22"></i>
+                    <span class="menu-item-label">Dashboard</span>
+                </div><!-- menu-item -->
+            </a><!-- br-menu-link -->
+            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12, 13, 14, 15, 16 }))
+            {
+                <a href="#" class="br-menu-link active show-sub">
+                    <div class="br-menu-item">
+                        <i class="menu-item-icon icon ion-ios-paper-outline  tx-24"></i>
+                        <span class="menu-item-label">Ventas</span>
+                        <i class="menu-item-arrow fa fa-angle-down"></i>
+                    </div><!-- menu-item -->
+                </a><!-- br-menu-link -->
+                <ul class="br-menu-sub nav flex-column">
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 9, 10 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("List","BussinesPartner")" class="nav-link active">Clientes</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("List","Cotizaciones")" class="nav-link">Cotizaciones ecommerce</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 15, 16 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("List","Document")" class="nav-link">Documentos en proceso</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 13, 14 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("Rejected","Document")" class="nav-link">Pedidos rechazados</a></li>
+                    }
+                </ul>
+            }
+            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 1))
+            {
+                <a href="#" class="br-menu-link">
+                    <div class="br-menu-item">
+                        <i class="menu-item-icon icon ion-ios-briefcase-outline tx-24"></i>
+                        <span class="menu-item-label">Marketing</span>
+                        <i class="menu-item-arrow fa fa-angle-down"></i>
+                    </div><!-- menu-item -->
+                </a><!-- br-menu-link -->
+                <ul class="br-menu-sub nav flex-column">
+                    <li class="nav-item"><a href="@Url.Action("List","Producto")" class="nav-link">Productos fijos</a></li>
+                </ul>
+            }
+            @if ((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet") == 48)
+            {
+                <a href="#" class="br-menu-link">
+                    <div class="br-menu-item">
+                        <i class="menu-item-icon icon ion-ios-gear-outline tx-24"></i>
+                        <span class="menu-item-label">Administrador</span>
+                        <i class="menu-item-arrow fa fa-angle-down"></i>
+                    </div><!-- menu-item -->
+                </a><!-- br-menu-link -->
+                <ul class="br-menu-sub nav flex-column">
+                    <li class="nav-item"><a href="@Url.Action("Index","AccessCtr")" class="nav-link">Accesos</a></li>
+                </ul>
+            }
 
-            <div class="am-header-right">
-                <div class="dropdown dropdown-notification">
-                    <a href="" class="nav-link pd-x-7 pos-relative" data-toggle="dropdown">
-                        <i class="icon ion-ios-bell-outline tx-24"></i>
-                        <!-- start: if statement -->
-                        <span class="square-8 bg-danger pos-absolute t-15 r-0 rounded-circle"></span>
-                        <!-- end: if statement -->
-                    </a>
-                    <div class="dropdown-menu wd-300 pd-0-force">
-                        <div class="dropdown-menu-header">
-                            <label>Notifications</label>
-                            <a href="">Mark All as Read</a>
-                        </div><!-- d-flex -->
+        </div><!-- br-sideleft-menu -->
+    </div><!-- br-sideleft -->
 
-                        <div class="media-list">
-                            <!-- loop starts here -->
-                            <a href="" class="media-list-link read">
-                                <div class="media pd-x-20 pd-y-15">
-                                    <img src="../img/img8.jpg" class="wd-40 rounded-circle" alt="">
-                                    <div class="media-body">
-                                        <p class="tx-13 mg-b-0"><strong class="tx-medium">Suzzeth Bungaos</strong> tagged you and 18 others in a post.</p>
-                                        <span class="tx-12">October 03, 2017 8:45am</span>
-                                    </div>
-                                </div><!-- media -->
-                            </a>
-                            <!-- loop ends here -->
-                            <a href="" class="media-list-link read">
-                                <div class="media pd-x-20 pd-y-15">
-                                    <img src="../img/img9.jpg" class="wd-40 rounded-circle" alt="">
-                                    <div class="media-body">
-                                        <p class="tx-13 mg-b-0"><strong class="tx-medium">Mellisa Brown</strong> appreciated your work <strong class="tx-medium">The Social Network</strong></p>
-                                        <span class="tx-12">October 02, 2017 12:44am</span>
-                                    </div>
-                                </div><!-- media -->
-                            </a>
-                            <div class="media-list-footer">
-                                <a href="" class="tx-12"><i class="fa fa-angle-down mg-r-5"></i> Show All Notifications</a>
-                            </div>
-                        </div><!-- media-list -->
-                    </div><!-- dropdown-menu -->
-                </div><!-- dropdown -->
-                <div class="dropdown dropdown-profile">
+    <div class="br-header">
+        <div class="br-header-left">
+            <div class="navicon-left hidden-md-down"><a id="btnLeftMenu" href=""><i class="icon ion-navicon-round"></i></a></div>
+            <div class="navicon-left hidden-lg-up"><a id="btnLeftMenuMobile" href=""><i class="icon ion-navicon-round"></i></a></div>
+            <div class="input-group hidden-xs-down wd-170 transition"></div><!-- input-group -->
+        </div><!-- br-header-left -->
+        <div class="br-header-right">
+            <nav class="nav">
+                <div class="dropdown">
                     <a href="" class="nav-link nav-link-profile" data-toggle="dropdown">
-                        <img src="~/Template1/amandahtml-20/template/img/img3.jpg" class="wd-32 rounded-circle" alt="">
-                        <span class="logged-name"><span class="hidden-xs-down">@HttpContextAccessor.HttpContext.Session.GetString("USR_Nombre") @HttpContextAccessor.HttpContext.Session.GetString("USR_ApellidoPaterno")</span> <i class="fa fa-angle-down mg-l-3"></i></span>
+                        <span class="logged-name hidden-md-down">@HttpContextAccessor.HttpContext.Session.GetString("USR_Nombre") @HttpContextAccessor.HttpContext.Session.GetString("USR_ApellidoPaterno")</span>
+                        <img src="http://via.placeholder.com/64x64" class="wd-32 rounded-circle" alt="">
+                        <span class="square-10 bg-success"></span>
                     </a>
-                    <div class="dropdown-menu wd-200">
+                    <div class="dropdown-menu dropdown-menu-header wd-200">
                         <ul class="list-unstyled user-profile-nav">
-                            <li><a href="@Url.Action("Logout","Login")"><i class="icon ion-power"></i> Cerrar sesión</a></li>
+                            <li><a href="@Url.Action("Logout","Login")"><i class="icon ion-power"></i> Sign Out</a></li>
                         </ul>
                     </div><!-- dropdown-menu -->
                 </div><!-- dropdown -->
-            </div><!-- am-header-right -->
-        </div><!-- am-header -->
+            </nav>
+        </div><!-- br-header-right -->
+    </div><!-- br-header -->
 
-        <div class="am-sideleft">
-            <ul class="nav am-sideleft-tab">
-                <li class="nav-item">
-                    <a href="#mainMenu" class="nav-link active"><i class="icon ion-ios-home-outline tx-24"></i></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#emailMenu" class="nav-link"><i class="icon ion-ios-email-outline tx-24"></i></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#chatMenu" class="nav-link"><i class="icon ion-ios-chatboxes-outline tx-24"></i></a>
-                </li>
-                <li class="nav-item">
-                    <a href="#settingMenu" class="nav-link"><i class="icon ion-ios-gear-outline tx-24"></i></a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                <div id="mainMenu" class="tab-pane active">
-                    <ul class="nav am-sideleft-menu">
-                        <li class="nav-item">
-                            <a href="@Url.Action("Index","Home")" class="nav-link">
-                                <i class="icon ion-ios-home-outline"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li><!-- nav-item -->
-                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12, 13, 14, 15,16 }))
-                        {
-                            <li class="nav-item">
-                                <a href="" class="nav-link with-sub">
-                                    <i class="icon ion-ios-gear-outline"></i>
-                                    <span>Ventas</span>
-                                </a>
-                                <ul class="nav-sub">
-                                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 9,10 }))
-                                    {
-                                        <li class="nav-item"><a href="@Url.Action("List","BussinesPartner")" class="nav-link">Mis clientes</a></li>
-                                    }
-                                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] {11,12}))
-                                    {
-                                        <li class="nav-item"><a href="@Url.Action("List","Cotizaciones")" class="nav-link">Cotizaciones Ecommerce</a></li>
-                                    }
-                                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 15,16}))
-                                    {
-                                        <li class="nav-item"><a href="@Url.Action("List","Document")" class="nav-link">Pedidos en proceso</a></li>
-                                    }
-                                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 13,14}))
-                                    {
-                                        <li class="nav-item"><a href="@Url.Action("Rejected","Document")" class="nav-link">Pedidos rechazados</a></li>
-                                    }
-
-                                </ul>
-                            </li>
-                        }
-
-                        <!-- nav-item -->
-                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 1))
-                        {
-                            <li class="nav-item">
-                                <a href="" class="nav-link with-sub">
-                                    <i class="icon ion-ios-gear-outline"></i>
-                                    <span>Marketing</span>
-                                </a>
-                                <ul class="nav-sub">
-                                    <li class="nav-item"><a href="@Url.Action("List","Producto")" class="nav-link">Productos fijos</a></li>
-
-                                </ul>
-                            </li>
-                        }
-                        @if ((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet") == 48)
-                        {
-                            <li class="nav-item">
-                                <a href="" class="nav-link with-sub">
-                                    <i class="icon ion-ios-gear-outline"></i>
-                                    <span>administrador</span>
-                                </a>
-                                <ul class="nav-sub">
-                                    <li class="nav-item"><a href="@Url.Action("Index","AccessCtr")" class="nav-link">Permisos al sistema</a></li>
-
-                                </ul>
-                            </li>
-                        }
-                        <!-- nav-item -->
-                    </ul>
-                </div><!-- #mainMenu -->
-            </div><!-- tab-content -->
-        </div><!-- am-sideleft -->
-
-        <div class="am-pagetitle">
-            <h5 class="am-title">@ViewData["Title"]</h5>
-            @*<form id="searchBar" class="search-bar" action="index.html">
-                    <div class="form-control-wrapper">
-                        <input type="search" class="form-control bd-0" placeholder="Search...">
-                    </div>
-                    <button id="searchBtn" class="btn btn-orange"><i class="fa fa-search"></i></button>
-                </form>*@
-        </div>
-        <div class="am-mainpanel">
-            <div class="am-pagebody">
-                @if (controllerName != "ErrorPages")
-                {
-                    @*<div class="page-header">
-                        <div class="page-block">
-                            <div class="row align-items-center">
-                                <div class="col-md-12">
-                                    <div class="page-header-title">
-                                    </div>
-                                    <ul class="breadcrumb">
-                                        @Html.ActionLink("Home", "Index", "Home", null, new { @class = "breadcrumb-item" })
-                                        @if (ViewContext.RouteData.Values["action"].ToString() != "Index")
-                                        {
-                                            @:/ @Html.ActionLink(ViewData["Title"].ToString(), ViewContext.RouteData.Values["action"].ToString(), ViewContext.RouteData.Values["controller"].ToString(), null, new { @class = "breadcrumb-item" })
-                                        }
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
-                }
-                @RenderBody()
-            </div>
-            <div class="am-footer">
-                <span>Copyright &copy;. All Rights Reserved. Grupo Splittel.</span>
-                <span>Created by: IT Departament.</span>
-            </div>
+    <div class="br-mainpanel">
+        <div class="br-pageheader pd-y-15 pd-l-20">
+            <nav class="breadcrumb pd-0 mg-0 tx-12">
+                <a class="breadcrumb-item" href="@Url.Action("Index","Home")">Home</a>
+                <span class="breadcrumb-item active">@ViewData["Title"]</span>
+            </nav>
+        </div><!-- br-pageheader -->
+        <div class="pd-x-20 pd-sm-x-30 pd-t-20 pd-sm-t-30">
+            <h4 class="tx-gray-800 mg-b-5">@ViewData["Title"]</h4>
+            @*<p class="mg-b-0">Introducing Bracket apps &amp; pages, the most handsome admin template of all time.</p>*@
         </div>
 
+        <div class="br-pagebody pd-x-20 pd-sm-x-30 pd-b-20">
+            <div class="row">
+                <div class="col-12">
+                    @RenderBody()
+                </div>
+            </div><!-- row -->
+        </div><!-- br-pagebody -->
+
+    </div><!-- br-mainpanel -->
     }
-    @*<partial name="_CookieConsentPartial" />*@
-    <environment include="Development">
-        @*<script src="~/lib/jquery/dist/jquery.js"></script>
-            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
-        <script src="~/Template1/amandahtml-20/template/lib/jquery/jquery.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/popper.js/popper.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/bootstrap/bootstrap.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/jquery-toggles/toggles.min.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/d3/d3.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/rickshaw/rickshaw.min.js"></script>
-        <script src="http://maps.google.com/maps/api/js?key=AIzaSyAEt_DBLTknLexNbTVwbXyq2HSf2UbRBU8"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/gmaps/gmaps.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/Flot/jquery.flot.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/Flot/jquery.flot.pie.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/Flot/jquery.flot.resize.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/flot-spline/jquery.flot.spline.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/highlightjs/highlight.pack.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/datatables/jquery.dataTables.js"></script>
-        <script src="~/Template1/amandahtml-20/template/lib/datatables-responsive/dataTables.responsive.js"></script>
-        <script src="~/Template1/amandahtml-20/template/js/amanda.js"></script>
-        <script src="~/Template1/amandahtml-20/template/js/ResizeSensor.js"></script>
-        <script src="~/js/moment.min.js"></script>
-        @*<script src="~/Template1/amandahtml-20/template/js/dashboard.js"></script>*@
+    <environment exclude="Development">
+        <script src="~/template/lib/jquery/jquery.js"></script>
+        <script src="~/template/lib/popper.js/popper.js"></script>
+        <script src="~/template/lib/bootstrap/bootstrap.js"></script>
+        <script src="~/template/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
+        <script src="~/template/lib/moment/moment.js"></script>
+        <script src="~/template/lib/jquery-ui/jquery-ui.js"></script>
+        <script src="~/template/lib/jquery-switchbutton/jquery.switchButton.js"></script>
+        <script src="~/template/lib/peity/jquery.peity.js"></script>
+        <script src="~/template/lib/datatables/jquery.dataTables.js"></script>
+        <script src="~/template/lib/datatables-responsive/dataTables.responsive.js"></script>
+        <script src="~/template/js/bracket.js"></script>
+        <script src="~/template/lib/chartist/chartist.js"></script>
+        <script src="~/template/lib/jquery.sparkline.bower/jquery.sparkline.min.js"></script>
+        <script src="~/template/lib/d3/d3.js"></script>
+        <script src="~/template/lib/rickshaw/rickshaw.min.js"></script>
+        <script src="~/template/lib/highlightjs/highlight.pack.js"></script>
+        <script src="~/template/lib/Flot/jquery.flot.js"></script>
+        <script src="~/template/lib/Flot/jquery.flot.pie.js"></script>
+        <script src="~/template/lib/Flot/jquery.flot.resize.js"></script>
+        <script src="~/template/lib/flot-spline/jquery.flot.spline.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
         <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
@@ -260,7 +184,7 @@
         }
 
     </environment>
-    <environment exclude="Development">
+    <environment include="Development">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
                 asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
                 asp-fallback-test="window.jQuery"
@@ -275,7 +199,7 @@
         </script>
         @if (controllerName != "Login")
         {
-            <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
         }
     </environment>
 

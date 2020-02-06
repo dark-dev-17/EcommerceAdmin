@@ -20,7 +20,7 @@
                     cargando ...
                 </div>
                 <div v-if="item.controls.isGettingData === false">
-                    <table class="table ">
+                    <table class="table table-hover table-custom spacing5">
                         <tr>
                             <td><strong>Codigo</strong></td>
                             <td colspan="1">{{ item.data.objeto.itemCode }}</td>
@@ -89,7 +89,7 @@
                 <div class="col-xl-12">
                     <div class="card bd">
                         <div class="card-header bd-b">
-                            <ul class="nav nav-tabs card-header-tabs">
+                            <ul class="nav nav-outline active-info flex-column flex-md-row">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Imagenes producto</a>
                                 </li>
