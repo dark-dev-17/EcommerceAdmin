@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -20,10 +21,10 @@ namespace EcommerceAdmin2.Models.Sistema
         public SqlConnection sqlConnection;
         public DBSqlServer()
         {
-            Server = "192.168.2.17";
-            Username = "USR_LECTURA";
-            Password = "splitel.lectura16";
-            Database = "FIBREMX_TEST";
+            //Server = "192.168.2.17";
+            //Username = "USR_LECTURA";
+            //Password = "splitel.lectura16";
+            //Database = "FIBREMX_TEST";
         }
         public void ForceConnection(bool forceConnection)
         {
@@ -34,11 +35,12 @@ namespace EcommerceAdmin2.Models.Sistema
         }
         public bool OpenDataBaseAccess()
         {
-            string ConnectionString = "Data Source=" + Server + ";";
-            ConnectionString += "User ID=" + Username + ";";
-            ConnectionString += "Password=" + Password + ";";
-            ConnectionString += "Initial Catalog=" + Database + ";";
-            ConnectionString += "Connect Timeout=9000;Persist Security Info=True;MultipleActiveResultSets=true;";
+            //string ConnectionString = "Data Source=" + Server + ";";
+            //ConnectionString += "User ID=" + Username + ";";
+            //ConnectionString += "Password=" + Password + ";";
+            //ConnectionString += "Initial Catalog=" + Database + ";";
+            //ConnectionString += "Connect Timeout=9000;Persist Security Info=True;MultipleActiveResultSets=true;";
+            string ConnectionString = ConfigurationManager.AppSettings["SAP_Database"].ToString();
             try
             {
                 sqlConnection = new SqlConnection(ConnectionString);

@@ -69,15 +69,15 @@ namespace EcommerceAdmin2.Controllers
             }
             catch (DBException ex)
             {
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
             catch (MySqlException ex)
             {
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
         }
         /// <summary>
@@ -88,7 +88,7 @@ namespace EcommerceAdmin2.Controllers
         /// <returns>json</returns>
         [HttpPost]
         [AccessData(IdAction = 2)]
-        public IActionResult DataactiveItem(bool Active,string ItemCode)
+        public IActionResult DataactiveItem(bool Active, string ItemCode)
         {
             try
             {
@@ -111,15 +111,15 @@ namespace EcommerceAdmin2.Controllers
             }
             catch (DBException ex)
             {
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
             catch (MySqlException ex)
             {
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return BadRequest(response);
+                return BadRequest(ex.Message);
             }
         }
         /// <summary>
@@ -174,7 +174,7 @@ namespace EcommerceAdmin2.Controllers
         {
             try
             {
-                List<Files> list = new Files(@"public_html/store/public/images/img_spl/productos/" + ItemCode + "/", @"http://fibremex.co/store/public/images/img_spl/productos/" + ItemCode + "/").Getfiles("*.jpg");
+                List<Files> list = new Files(@"public_html/store/public/images/img_spl/productos/" + ItemCode + "/", @"/store/public/images/img_spl/productos/" + ItemCode + "/").Getfiles("*.jpg");
                 ResponseList<Files> responseLst =  new ResponseList<Files> { Code = 0, Description = "Producto no encontrado", Type = "Suscess", Records = list };
                 return Ok(responseLst);
             }
@@ -329,7 +329,7 @@ namespace EcommerceAdmin2.Controllers
         {
             try
             {
-                List<Files> list = new Files(@"public_html/store/public/images/img_spl/productos/" + ItemCode + "/adicional/", @"http://fibremex.co/store/public/images/img_spl/productos/" + ItemCode + "/adicional/").Getfiles("*.jpg");
+                List<Files> list = new Files(@"public_html/store/public/images/img_spl/productos/" + ItemCode + "/adicional/", @"/store/public/images/img_spl/productos/" + ItemCode + "/adicional/").Getfiles("*.jpg");
                 ResponseList<Files> responseLst = new ResponseList<Files> { Code = 0, Description = "Producto encontrado", Type = "Suscess", Records = list };
                 return Ok(responseLst);
             }
@@ -349,7 +349,7 @@ namespace EcommerceAdmin2.Controllers
         {
             try
             {
-                List<Files> list = new Files(@"public_html/store/public/images/img_spl/productos/" + ItemCode + "/descripcion/", @"http://fibremex.co/store/public/images/img_spl/productos/" + ItemCode + "/descripcion/").Getfiles("*.jpg");
+                List<Files> list = new Files(@"public_html/store/public/images/img_spl/productos/" + ItemCode + "/descripcion/", @"/store/public/images/img_spl/productos/" + ItemCode + "/descripcion/").Getfiles("*.jpg");
                 ResponseList<Files> responseLst = new ResponseList<Files> { Code = 0, Description = "Producto encontrado", Type = "Suscess", Records = list };
                 return Ok(responseLst);
             }
@@ -358,7 +358,71 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="ModeBussiness"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetarticulosTo5CotizacionesEcom(DateTime start, DateTime end, string ModeBussiness)
+        {
+            try
+            {
+                // conectar abase de  datos splittel
+                DBMysql dBMysql = new DBMysql("Ecommerce");
+                dBMysql.OpenConnection();
+                Articulos articulos = new Articulos(dBMysql);
+                // obtener articulos dados de alta en ecommercce
+                List<Articulos> result = articulos.GetarticulosTo5CotizacionesEcom(ModeBussiness);
+                responseList = new ResponseList<Articulos> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records  = result };
+                dBMysql.CloseConnection();
+                return Ok(responseList);
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [AccessData(IdAction = 18)]
+        public IActionResult GetTopCategoria(DateTime start, DateTime end, string ModeBussiness)
+        {
+            try
+            {
+                // conectar abase de  datos splittel
+                DBMysql dBMysql = new DBMysql("Ecommerce");
+                dBMysql.OpenConnection();
+                Categoria articulos = new Categoria(dBMysql);
+                // obtener articulos dados de alta en ecommercce
+                List<Categoria> result = articulos.GetTopCategoria( start,  end, ModeBussiness);
+                ResponseList<Categoria> responseListq = new ResponseList<Categoria> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = result };
+                dBMysql.CloseConnection();
+                return Ok(responseListq);
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         private void ValidSessionsActions(int IdAction)
         {
             try

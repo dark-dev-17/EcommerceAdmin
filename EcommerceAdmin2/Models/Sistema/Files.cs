@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -23,17 +24,17 @@ namespace EcommerceAdmin2.Models.Sistema
         #region Constructores
         public Files(string FTP_Directory = "public_html/store/", string site = @"http://fibremex.co/")
         {
-            this.FTP_server = "ftp.fibremex.co/";
-            this.FTP_user = "fibreco";
-            this.FTP_password = "spt.f1br3m3X.f1b.CO458#";
+            this.FTP_server = ConfigurationManager.AppSettings["FTP_Server"].ToString();
+            this.FTP_user = ConfigurationManager.AppSettings["FTP_User"].ToString();
+            this.FTP_password = ConfigurationManager.AppSettings["FTP_Password"].ToString();
             this.FTP_Directory = FTP_Directory;
-            this.Site = site;
+            this.Site = ConfigurationManager.AppSettings["Ecommerce_Domain"].ToString() + site;
         }
         public Files()
         {
-            this.FTP_server = "ftp.fibremex.co/";
-            this.FTP_user = "fibreco";
-            this.FTP_password = "spt.f1br3m3X.f1b.CO458#";
+            this.FTP_server = ConfigurationManager.AppSettings["FTP_Server"].ToString();
+            this.FTP_user = ConfigurationManager.AppSettings["FTP_User"].ToString();
+            this.FTP_password = ConfigurationManager.AppSettings["FTP_Password"].ToString();
         }
         #endregion
         #region Metodos

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using EcommerceAdmin2.Models;
+using System.Configuration;
 
 namespace EcommerceAdmin2.Controllers
 {
@@ -36,7 +37,8 @@ namespace EcommerceAdmin2.Controllers
                         if (Response == 0)
                         {
                             StartSessions(Usuario.GetId(), dBMysql);
-                            response = Json(new { Error = false, Description = "Login success", Type = "Success", Code = 0 });
+                            bool Homeview = Usuario.AccessToAction(Usuario.GetId(), 18);
+                            response = Json(new { Error = false, Description = "Login success", Type = "Success", Code = 0, view = Homeview ? "Home" : "About"});
                         }
                         else
                         {

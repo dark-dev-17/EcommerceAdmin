@@ -5,12 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using EcommerceAdmin2.Models;
+using EcommerceAdmin2.Models.Filters;
 
 namespace EcommerceAdmin2.Controllers
 {
-    [FilterSessionValid]
+    
     public class HomeController : Controller
     {
+        [AccessView(IdAction = 18)]
         public IActionResult Index()
         {
             return View();

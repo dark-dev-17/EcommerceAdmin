@@ -36,4 +36,18 @@ namespace EcommerceAdmin2.Models.Sistema
         public string Description { get; set; }
         public int Code { get; set; }
     }
+    public class ResponseInt : ActionResult
+    {
+        public string Type { get; set; }
+        public string Description { get; set; }
+        public int Code { get; set; }
+        public int Value { get; set; }
+    }
+    public class ResponseDouble : ActionResult
+    {
+        public string Type { get; set; }
+        public string Description { get; set; }
+        public int Code { get; set; }
+        public double Value { get; set; }
+    }
 }

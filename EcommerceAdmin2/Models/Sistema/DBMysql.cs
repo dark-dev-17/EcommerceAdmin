@@ -1,7 +1,9 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,6 +17,7 @@ namespace EcommerceAdmin2.Models.Sistema
         public string Username { get; private set; }
         public string Password { get; private set; }
         public string Port { get; private set; }
+        private string ConnectionString { get; set; }
         public MySqlConnection Connection { get; private set; }
         #endregion
         #region Constructores
@@ -22,19 +25,21 @@ namespace EcommerceAdmin2.Models.Sistema
         {
             if(mode == "Splinet")
             {
-                this.Server = "192.168.2.29";
-                this.Database = "fibreco_fmx";
-                this.Username = "fibremex";
-                this.Password = "FBSrvAD*0316.";
-                this.Port = "3306";
+                //this.Server = "192.168.2.29";
+                //this.Database = "fibreco_fmx";
+                //this.Username = "fibremex";
+                //this.Password = "FBSrvAD*0316.";
+                //this.Port = "3306";
+                ConnectionString = ConfigurationManager.AppSettings["Splinnet_Database"].ToString();
             }
             else
             {
-                this.Server = "68.71.58.18";
-                this.Database = "fibremex_b2b_test";
-                this.Username = "fibremex_mxgod";
-                this.Password = "1q2w3e4r5t.";
-                this.Port = "3306";
+                //this.Server = "68.71.58.18";
+                //this.Database = "fibremex_b2b_test";
+                //this.Username = "fibremex_mxgod";
+                //this.Password = "1q2w3e4r5t.";
+                //this.Port = "3306";
+                ConnectionString = ConfigurationManager.AppSettings["Ecommerce_Database"].ToString();
             }
             
         }
@@ -56,7 +61,7 @@ namespace EcommerceAdmin2.Models.Sistema
         public void OpenConnection()
         {
             //myConnectionString="Server=myServerAddress;Port=1234;Database=testDB;Uid=root;Pwd=abc123;
-            string ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", Server, Port, Database, Username, Password);
+            //string ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", Server, Port, Database, Username, Password);
             Connection = new MySqlConnection(ConnectionString);
             try
             {
@@ -138,7 +143,6 @@ namespace EcommerceAdmin2.Models.Sistema
         }
         public bool ExecuteProcedure(string Parameters, string returnValue)
         {
-
             try
             {
                 CheckConnection();
@@ -170,7 +174,190 @@ namespace EcommerceAdmin2.Models.Sistema
             {
                 throw ex;
             }
-        } 
+        }
+        private void processParameters(string Parameters, MySqlCommand cmd)
+        {
+            string ProcedureName = Parameters.Split('|')[0];
+            string[] Paramet = Parameters.Split('|')[1].Split('&');
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = ProcedureName;
+
+            foreach (string item in Paramet)
+            {
+                string variable = item.Split('@')[0];
+                string variableValue = item.Split('@')[1];
+                string type = variableValue.Split('=')[0];
+                string value = variableValue.Split('=')[1];
+
+                if (type == "DATETIME")
+                {
+                    cmd.Parameters.AddWithValue("@" + variable, DateTime.Parse(value));
+                    cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                }
+                if (type == "VARCHAR")
+                {
+                    cmd.Parameters.AddWithValue("@" + variable, value);
+                    cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                }
+
+            }
+        }
+        public MySqlDataReader ExecuteStoreProcedureReader(string Parameters)
+        {
+            try
+            {
+                CheckConnection();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = Connection;
+                processParameters(Parameters, cmd);
+                MySqlDataReader dataReader = cmd.ExecuteReader();
+                return dataReader;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public int ExecuteProcedureInt(string Parameters, string output)
+        {
+            try
+            {
+                CheckConnection();
+                //string ProcedureName = Parameters.Split('|')[0];
+                //string[] Paramet = Parameters.Split('|')[1].Split('&');
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = Connection;
+                processParameters(Parameters,cmd);
+                //cmd.CommandType = CommandType.StoredProcedure;
+                //cmd.CommandText = ProcedureName;
+                ////campo @ typevar = valor &
+                //foreach (string item in Paramet)
+                //{
+                //    string variable = item.Split('@')[0];
+                //    string variableValue = item.Split('@')[1];
+                //    string type = variableValue.Split('=')[0];
+                //    string value = variableValue.Split('=')[1];
+
+                //    if (type == "DATETIME")
+                //    {
+                //        cmd.Parameters.AddWithValue("@" + variable, DateTime.Parse(value));
+                //        cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                //    }
+                //    if (type == "VARCHAR")
+                //    {
+                //        cmd.Parameters.AddWithValue("@" + variable, value);
+                //        cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                //    }
+
+                //}
+                //value returns
+                cmd.Parameters.AddWithValue("@" + output, Int32.Parse("1"));
+                cmd.Parameters["@" + output].Direction = ParameterDirection.Output;
+
+                cmd.ExecuteNonQuery();
+
+                int RequestStatus = (int)cmd.Parameters["@" + output].Value;
+
+                return RequestStatus;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public double ExecuteProcedureDouble(string Parameters, string output)
+        {
+            try
+            {
+                CheckConnection();
+                string ProcedureName = Parameters.Split('|')[0];
+                string[] Paramet = Parameters.Split('|')[1].Split('&');
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = Connection;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = ProcedureName;
+                //campo @ typevar = valor &
+                foreach (string item in Paramet)
+                {
+                    string variable = item.Split('@')[0];
+                    string variableValue = item.Split('@')[1];
+                    string type = variableValue.Split('=')[0];
+                    string value = variableValue.Split('=')[1];
+
+                    if (type == "DATETIME")
+                    {
+                        cmd.Parameters.AddWithValue("@" + variable, DateTime.Parse(value));
+                        cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                    }
+                    if (type == "VARCHAR")
+                    {
+                        cmd.Parameters.AddWithValue("@" + variable, value);
+                        cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                    }
+
+                }
+                //value returns
+                cmd.Parameters.AddWithValue("@" + output, double.Parse("1"));
+                cmd.Parameters["@" + output].Direction = ParameterDirection.Output;
+
+                cmd.ExecuteNonQuery();
+
+                double RequestStatus = (double)cmd.Parameters["@"+ output].Value;
+
+                return RequestStatus;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public int ExecuteScalarInt(string stattement)
+        {
+            try
+            {
+                CheckConnection();
+                MySqlCommand cmd = new MySqlCommand(stattement, Connection);
+                //Create a data reader and Execute the command
+                return (int)cmd.ExecuteScalar();
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public int DoQuerySingle(string stattement)
         {
             try

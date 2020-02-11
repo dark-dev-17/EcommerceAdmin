@@ -1,11 +1,657 @@
 ﻿@{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Dashboard general";
 }
-<div class="card pd-20 pd-sm-40">
-    <h6 class="card-body-title">Base Accordion</h6>
-    <p class="mg-b-20 mg-sm-b-30">The default collapse behavior to create an accordion.</p>
-
-    <div id="accordion" class="accordion" role="tablist" aria-multiselectable="true">
-
+    <div id="app_dashboard">
+        
+        <div class="row no-gutters widget-1">
+            <div class="col-1"></div>
+            <div class="col-sm-6 col-lg-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">Venta del día</h6>
+                        @*<a href="#"><i class="icon ion-android-more-horizontal"></i></a>*@
+                    </div><!-- card-header -->
+                    <div v-if="ventaDia.isGettingB2C == true" class="card-footer">Obteniendo B2C...</div>
+                    <div v-if="ventaDia.isGettingB2B == true" class="card-footer">Obteniendo B2B......</div>
+                    <div v-if="ventaDia.isGettingB2C == false && ventaDia.isGettingB2B == false" class="card-body">
+                        <i class="ion ion-bag tx-50 lh-0 tx-purple op-5"></i>
+                        <span class="tx-danger">${{ (ventaDia.b2c + ventaDia.b2b) | formatPrice}} {{ Currency }}</span>
+                    </div><!-- card-body -->
+                    <div v-if="ventaDia.isGettingB2C == false && ventaDia.isGettingB2B == false" class="card-footer">
+                        <div>
+                            <span class="tx-11">B2B</span>
+                            <h6 class="tx-inverse">${{ ventaDia.b2b | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                        <div>
+                            <span class="tx-11">B2C</span>
+                            <h6 class="tx-inverse">${{ ventaDia.b2c | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                    </div><!-- card-footer -->
+                </div><!-- card -->
+            </div><!-- col-3 -->
+            <div class="col-sm-6 col-lg-2 mg-t-1 mg-sm-t-0">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">Venta semanal</h6>
+                        @*<a href="#"><i class="icon ion-android-more-horizontal"></i></a>*@
+                    </div><!-- card-header -->
+                    <div v-if="ventaSemana.isGettingB2C == true" class="card-footer">Obteniendo B2C...</div>
+                    <div v-if="ventaSemana.isGettingB2B == true" class="card-footer">Obteniendo B2B......</div>
+                    <div v-if="ventaSemana.isGettingB2C == false && ventaSemana.isGettingB2B == false" class="card-body">
+                        <i class="ion ion-bag tx-50 lh-0 tx-purple op-5"></i>
+                        <span class="tx-danger">${{ (ventaSemana.b2c + ventaSemana.b2b) | formatPrice}} {{ Currency }}</span>
+                    </div><!-- card-body -->
+                    <div v-if="ventaSemana.isGettingB2C == false && ventaSemana.isGettingB2B == false" class="card-footer">
+                        <div>
+                            <span class="tx-11">B2B</span>
+                            <h6 class="tx-inverse">${{ ventaSemana.b2b | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                        <div>
+                            <span class="tx-11">B2C</span>
+                            <h6 class="tx-inverse">${{ ventaSemana.b2c | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                    </div><!-- card-footer -->
+                </div><!-- card -->
+            </div><!-- col-3 -->
+            <div class="col-sm-6 col-lg-2 mg-t-1 mg-lg-t-0">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">Venta mensual</h6>
+                        @*<a href="#"><i class="icon ion-android-more-horizontal"></i></a>*@
+                    </div><!-- card-header -->
+                    <div v-if="ventaMes.isGettingB2C == true" class="card-footer">Obteniendo B2C...</div>
+                    <div v-if="ventaMes.isGettingB2B == true" class="card-footer">Obteniendo B2B......</div>
+                    <div v-if="ventaMes.isGettingB2C == false && ventaMes.isGettingB2B == false" class="card-body">
+                        <i class="ion ion-bag tx-50 lh-0 tx-purple op-5"></i>
+                        <span class="tx-danger">${{ (ventaMes.b2c + ventaMes.b2b) | formatPrice}} {{ Currency }}</span>
+                    </div><!-- card-body -->
+                    <div v-if="ventaMes.isGettingB2C == false && ventaMes.isGettingB2B == false" class="card-footer">
+                        <div>
+                            <span class="tx-11">B2B</span>
+                            <h6 class="tx-inverse">${{ ventaMes.b2b | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                        <div>
+                            <span class="tx-11">B2C</span>
+                            <h6 class="tx-inverse">${{ ventaMes.b2c | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                    </div><!-- card-footer -->
+                </div><!-- card -->
+            </div><!-- col-3 -->
+            <div class="col-sm-6 col-lg-2 mg-t-1 mg-lg-t-0">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">Venta ultimo mes</h6>
+                        @*<a href="#"><i class="icon ion-android-more-horizontal"></i></a>*@
+                    </div><!-- card-header -->
+                    <div v-if="ventaLastMes.isGettingB2C == true" class="card-footer">Obteniendo B2C...</div>
+                    <div v-if="ventaLastMes.isGettingB2B == true" class="card-footer">Obteniendo B2B......</div>
+                    <div v-if="ventaLastMes.isGettingB2C == false && ventaLastMes.isGettingB2B == false" class="card-body">
+                        <i class="ion ion-bag tx-50 lh-0 tx-purple op-5"></i>
+                        <span class="tx-danger">${{ (ventaLastMes.b2c + ventaLastMes.b2b) | formatPrice}} {{ Currency }}</span>
+                    </div><!-- card-body -->
+                    <div v-if="ventaLastMes.isGettingB2C == false && ventaLastMes.isGettingB2B == false" class="card-footer">
+                        <div>
+                            <span class="tx-11">B2B</span>
+                            <h6 class="tx-inverse">${{ ventaLastMes.b2b | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                        <div>
+                            <span class="tx-11">B2C</span>
+                            <h6 class="tx-inverse">${{ ventaLastMes.b2c | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                    </div><!-- card-footer -->
+                </div><!-- card -->
+            </div><!-- col-3 -->
+            <div class="col-sm-6 col-lg-2 mg-t-1 mg-lg-t-0">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">Venta anual</h6>
+                        @*<a href="#"><i class="icon ion-android-more-horizontal"></i></a>*@
+                    </div><!-- card-header -->
+                    <div v-if="ventaAnio.isGettingB2C == true" class="card-footer">Obteniendo B2C...</div>
+                    <div v-if="ventaAnio.isGettingB2B == true" class="card-footer">Obteniendo B2B......</div>
+                    <div v-if="ventaAnio.isGettingB2C == false && ventaAnio.isGettingB2B == false" class="card-body">
+                        <i class="ion ion-bag tx-50 lh-0 tx-purple op-5"></i>
+                        <span class="tx-danger">${{ (ventaAnio.b2c + ventaAnio.b2b) | formatPrice}} {{ Currency }}</span>
+                    </div><!-- card-body -->
+                    <div v-if="ventaAnio.isGettingB2C == false && ventaAnio.isGettingB2B == false" class="card-footer">
+                        <div>
+                            <span class="tx-11">B2B</span>
+                            <h6 class="tx-inverse">${{ ventaAnio.b2b | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                        <div>
+                            <span class="tx-11">B2C</span>
+                            <h6 class="tx-inverse">${{ ventaAnio.b2c | formatPrice}} {{ Currency }}</h6>
+                        </div>
+                    </div><!-- card-footer -->
+                </div><!-- card -->
+            </div><!-- col-3 -->
+        </div>
+        <div class="card shadow-base bd-0 mg-t-20">
+            <div class="card-header bg-transparent pd-x-25 pd-y-15 bd-b-0 d-flex justify-content-between align-items-center">
+                <div class="d-flex  justify-content-end">
+                    <div class="d-md-flex">
+                        <input type="date" placeholder="Inicio" v-model="report.dates.start" class="form-control form-control-sm">
+                        <input type="date" placeholder="Termino" v-model="report.dates.end" class="form-control form-control-sm">
+                        <button v-on:click="procesar()" class="btn btn-info pd-y-13 pd-x-20 bd-0 mg-md-l-10 mg-t-10 mg-md-t-0 tx-uppercase tx-11 tx-spacing-2">Graficar</button>
+                    </div>
+                </div>
+            </div><!-- card-header -->
+            <div class="card-body pd-x-25 pd-b-25 pd-t-0">
+                <div class="row no-gutters">
+                    <div class="col-lg-2">
+                        <div class="widget-2">
+                            <div class="card shadow-base overflow-hidden">
+                                <div class="card-body card-body rounded-0">
+                                    <h6 class="tx-inverse tx-14 mg-b-5">Cotizaciones</h6>
+                                    <div class="tx-center mg-y-20">
+                                        <div id="cotizaciones" class="ht-100 ht-sm-200"></div>
+                                    </div>
+                                    <p class="tx-10 tx-uppercase tx-medium mg-b-0 tx-spacing-1">Total</p>
+                                    <h2 class="tx-inverse tx-bold tx-lato">
+                                        <span>{{ cotizaciones.b2b + cotizaciones.b2c }}</span>
+                                    </h2>
+                                    <div class="d-flex justify-content-between tx-12">
+                                        <div>
+                                            <span class="square-10 bg-info mg-r-5"></span> B2B
+                                            <h5 class="mg-b-0 mg-t-5 tx-bold tx-inverse tx-lato">{{ cotizaciones.b2b }}</h5>
+                                        </div>
+                                        <div>
+                                            <span class="square-10 bg-gray-300 mg-r-5"></span> B2C
+                                            <h5 class="mg-b-0 mg-t-5 tx-bold tx-inverse tx-lato">{{ cotizaciones.b2c }}</h5>
+                                        </div>
+                                    </div><!-- d-flex -->
+                                </div><!-- card-body -->
+                            </div><!-- card -->
+                        </div><!-- widget-2 -->
+                    </div><!-- col-3 -->
+                    <div class="col-lg-2">
+                        <div class="widget-2">
+                            <div class="card shadow-base overflow-hidden">
+                                <div class="card-body card-body rounded-0">
+                                    <h6 class="tx-inverse tx-14 mg-b-5">Pedidos</h6>
+                                    <div class="tx-center mg-y-20">
+                                        <div id="pedidos" class="ht-100 ht-sm-200"></div>
+                                    </div>
+                                    <p class="tx-10 tx-uppercase tx-medium mg-b-0 tx-spacing-1">Total</p>
+                                    <h2 class="tx-inverse tx-bold tx-lato">
+                                        <span>{{ pedidos.b2b + pedidos.b2c }}</span>
+                                    </h2>
+                                    <div class="d-flex justify-content-between tx-12">
+                                        <div>
+                                            <span class="square-10 bg-info mg-r-5"></span> B2B
+                                            <h5 class="mg-b-0 mg-t-5 tx-bold tx-inverse tx-lato">{{ pedidos.b2b }}</h5>
+                                        </div>
+                                        <div>
+                                            <span class="square-10 bg-gray-300 mg-r-5"></span> B2C
+                                            <h5 class="mg-b-0 mg-t-5 tx-bold tx-inverse tx-lato">{{ pedidos.b2c }}</h5>
+                                        </div>
+                                    </div><!-- d-flex -->
+                                </div><!-- card-body -->
+                            </div><!-- card -->
+                        </div><!-- widget-2 -->
+                    </div><!-- col-3 -->
+                    <div class="col-lg-4">
+                        <div class="widget-2">
+                            <div class="card shadow-base overflow-hidden">
+                                <div class="card-body card-body rounded-0" v-if="masCotizados.isGettingB2B == false">
+                                    <h6 class="tx-inverse tx-14 mg-b-5">Productos más cotizados B2C</h6>
+                                    <ul class="list-group" v-for="item in masCotizados.listB2c.records">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ item.description }}
+                                            <span class="badge badge-success badge-pill">{{ item.quantity }}</span>
+                                        </li>
+                                    </ul>
+                                </div><!-- card-body -->
+                            </div><!-- card -->
+                        </div><!-- widget-2 -->
+                    </div><!-- col-3 -->
+                    <div class="col-lg-4">
+                        <div class="widget-2">
+                            <div class="card shadow-base overflow-hidden">
+                                <div class="card-body card-body rounded-0" v-if="masCotizados.isGettingB2B == false">
+                                    <h6 class="tx-inverse tx-14 mg-b-5">Productos más cotizados B2B</h6>
+                                    <ul class="list-group" v-for="item in masCotizados.listB2b.records">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ item.description }}
+                                            <span class="badge badge-success badge-pill">{{ item.quantity }}</span>
+                                        </li>
+                                    </ul>
+                                </div><!-- card-body -->
+                            </div><!-- card -->
+                        </div><!-- widget-2 -->
+                    </div><!-- col-3 -->
+                    
+                </div><!-- row -->
+                <div class="row no-gutters">
+                    <div class="col-lg-4">
+                        <div class="widget-2">
+                            <div class="card shadow-base overflow-hidden">
+                                <div class="card-body card-body rounded-0" v-if="categoriasTop.isGettingB2B == false">
+                                    <h6 class="tx-inverse tx-14 mg-b-5">categorías más cotizados B2C</h6>
+                                    <ul class="list-group" v-for="item in categoriasTop.b2c.records">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ item.description }}
+                                            <span class="badge badge-success badge-pill">{{ item.total }}</span>
+                                        </li>
+                                    </ul>
+                                </div><!-- card-body -->
+                                <div v-else>Obteniendo información</div>
+                            </div><!-- card -->
+                        </div><!-- widget-2 -->
+                    </div><!-- col-3 -->
+                    <div class="col-lg-4">
+                        <div class="widget-2">
+                            <div class="card shadow-base overflow-hidden">
+                                <div class="card-body card-body rounded-0" v-if="categoriasTop.isGettingB2B == false">
+                                    <h6 class="tx-inverse tx-14 mg-b-5">categorías más cotizados B2B</h6>
+                                    <ul class="list-group" v-for="item in categoriasTop.b2b.records">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ item.description }}
+                                            <span class="badge badge-success badge-pill">{{ item.total }}</span>
+                                        </li>
+                                    </ul>
+                                </div><!-- card-body -->
+                                <div v-else>Obteniendo información</div>
+                            </div><!-- card -->
+                        </div><!-- widget-2 -->
+                    </div><!-- col-3 -->
+                </div><!-- card-body -->
+            </div>
+        </div>
     </div>
-</div>
+@section Scripts 
+{
+    <script>
+        var app_dashboard = new Vue({
+            el: "#app_dashboard",
+            data: {
+                serverToken: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector("input[name=__RequestVerificationToken]").value
+                },
+                loadingPage: true,
+                Currency: 'USD',
+                ventaDia: {
+                    b2c: null,
+                    b2b: null,
+                    dates: {
+                        start: moment().format('YYYY-MM-DD'),
+                        end: moment().format('YYYY-MM-DD'),
+                    },
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                ventaSemana: {
+                    b2c: null,
+                    b2b: null,
+                    dates: {
+                        start: moment().startOf('week').format('YYYY-MM-DD'),
+                        end: moment().endOf('week').format('YYYY-MM-DD'),
+                    },
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                ventaMes: {
+                    b2c: null,
+                    b2b: null,
+                    dates: {
+                        start: moment().startOf('month').format('YYYY-MM-DD'),
+                        end: moment().endOf('month').format('YYYY-MM-DD'),
+                    },
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                ventaLastMes: {
+                    b2c: null,
+                    b2b: null,
+                    dates: {
+                        start: moment().add(-1, 'M').startOf('month').format('YYYY-MM-DD'),
+                        end: moment().add(-1, 'M').endOf('month').format('YYYY-MM-DD'),
+                    },
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                ventaAnio: {
+                    b2c: null,
+                    b2b: null,
+                    dates: {
+                        start: moment().add(-1, 'M').startOf('year').format('YYYY-MM-DD'),
+                        end: moment().add(-1, 'M').endOf('year').format('YYYY-MM-DD'),
+                    },
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                cotizaciones: {
+                    b2c: null,
+                    b2b: null,
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                categoriasTop: {
+                    b2c: null,
+                    b2b: null,
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                pedidos: {
+                    b2c: null,
+                    b2b: null,
+                    isGettingB2B: true,
+                    isGettingB2C: true
+                },
+                report: {
+                     dates: {
+                          start: moment().startOf('month').format('YYYY-MM-DD'),
+                        end: moment().endOf('month').format('YYYY-MM-DD'),
+                    }
+                },
+                masCotizados: {
+                    listB2b: null,
+                    listB2c: null,
+                    isGettingB2B: true,
+                    isGettingB2C: true,
+                    totalB2b: 0,
+                    totalB2c: 0
+                }
+            },
+            beforeCreate() {
+                this.loadingPage = true;
+            },
+            async mounted() {
+                this.loadingPage = false,
+                await this.GetVentaDia();
+                await this.GetVentaSemana();
+                await this.GetVentaMes();
+                await this.GetVentaLastMes();
+                await this.GetVentaAnio();
+                setTimeout(await this.GetNumCotizaciones(), 3000);
+                setTimeout(await this.GetNumPedidos(), 3000);
+                await this.GetMasCotizados();
+                await this.GetTopCategorias();
+                //setTimeout(await this.ShowTopQuantity(), 3000);
+            },
+            methods: {
+                GetTopCategorias: async function () {
+                    // ventas al dia b2c
+                    console.log("GetNumCotizaciones  b2c")
+                    let params = new FormData();
+                    params.append('start', this.report.dates.start);
+                    params.append('end', this.report.dates.end);
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("GetTopCategoria","Producto")', params, { headers: this.serverToken }).then(response => {
+                        this.categoriasTop.b2c = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.categoriasTop.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetNumCotizaciones  b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.report.dates.start);
+                    params2.append('end', this.report.dates.end);
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("GetTopCategoria","Producto")', params2, { headers: this.serverToken }).then(response => {
+                        this.categoriasTop.b2b = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.categoriasTop.isGettingB2B = false)
+                    //
+                },
+                procesar: function(){
+                    this.GetNumCotizaciones()
+                    this.GetNumPedidos()
+                },
+                ShowTopQuantity: function () {
+                    if (this.masCotizados.listB2b != null || this.masCotizados.listB2b.records != undefined) {
+                        console.log("generando chart");
+                        let colors = ['#9A3267', '#ED4151', '#F89D44', '#85C441', '#36B3E3'];
+
+                        let piedata = [];
+                        this.masCotizados.listB2b.records.forEach((data, index) => {
+                            piedata.push({ label: data.description, data: [[1,data.quantity]], color: colors[index]});
+                        });
+                        this.PieChart(piedata, "#articulos_top_quantityb2b");
+                    }
+                },
+                GetMasCotizados: async function () {
+                    // ventas al dia b2c
+                    console.log("GetMasCotizados b2c")
+                    let params = new FormData();
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetarticulosTo5CotizacionesEcom","Producto")', params, { headers: this.serverToken }).then(response => {
+                        this.masCotizados.listB2c = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.masCotizados.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetMasCotizados b2b")
+                    let params2 = new FormData();
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetarticulosTo5CotizacionesEcom","Producto")', params2, { headers: this.serverToken }).then(response => {
+                        this.masCotizados.listB2b = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.masCotizados.isGettingB2B = false)
+                },
+                GetVentaAnio: async function () {
+                    // ventas al dia b2c
+                    console.log("ventas al dia b2c")
+                    let params = new FormData();
+                    params.append('start', this.ventaAnio.start);
+                    params.append('end', this.ventaAnio.dates.end);
+                    params.append('Currency', 'USD');
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.ventaAnio.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaAnio.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("ventas al dia b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.ventaAnio.dates.start);
+                    params2.append('end', this.ventaAnio.dates.end);
+                    params2.append('Currency', 'USD');
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.ventaAnio.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaAnio.isGettingB2B = false)
+                },
+                GetVentaDia: async function () {
+                    // ventas al dia b2c
+                    console.log("ventas al dia b2c")
+                    let params = new FormData();
+                    params.append('start', this.ventaDia.dates.start);
+                    params.append('end', this.ventaDia.dates.end);
+                    params.append('Currency', 'USD');
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.ventaDia.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaDia.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("ventas al dia b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.ventaDia.dates.start);
+                    params2.append('end', this.ventaDia.dates.end);
+                    params2.append('Currency', 'USD');
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.ventaDia.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaDia.isGettingB2B = false)
+                },
+                GetVentaSemana: async function () {
+                    // ventas al dia b2c
+                    console.log("GetVentaSemana  b2c")
+                    let params = new FormData();
+                    params.append('start', this.ventaSemana.dates.start);
+                    params.append('end', this.ventaSemana.dates.end);
+                    params.append('Currency', 'USD');
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.ventaSemana.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaSemana.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetVentaSemana  b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.ventaSemana.dates.start);
+                    params2.append('end', this.ventaSemana.dates.end);
+                    params2.append('Currency', 'USD');
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.ventaSemana.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaSemana.isGettingB2B = false)
+                },
+                GetVentaMes: async function () {
+                    // ventas al dia b2c
+                    console.log("GetVentaMes  b2c")
+                    let params = new FormData();
+                    params.append('start', this.ventaMes.dates.start);
+                    params.append('end', this.ventaMes.dates.end);
+                    params.append('Currency', 'USD');
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.ventaMes.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaMes.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetVentaMes  b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.ventaMes.dates.start);
+                    params2.append('end', this.ventaMes.dates.end);
+                    params2.append('Currency', 'USD');
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.ventaMes.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaMes.isGettingB2B = false)
+                },
+                GetVentaLastMes: async function () {
+                    // ventas al dia b2c
+                    console.log("ventaLastMes  b2c")
+                    let params = new FormData();
+                    params.append('start', this.ventaLastMes.dates.start);
+                    params.append('end', this.ventaLastMes.dates.end);
+                    params.append('Currency', 'USD');
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.ventaLastMes.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaLastMes.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetVentaMes  b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.ventaLastMes.dates.start);
+                    params2.append('end', this.ventaLastMes.dates.end);
+                    params2.append('Currency', 'USD');
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetTotalPedidos","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.ventaLastMes.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaLastMes.isGettingB2B = false)
+                },
+                GetNumCotizaciones: async function () {
+                    // ventas al dia b2c
+                    console.log("GetNumCotizaciones  b2c")
+                    let params = new FormData();
+                    params.append('start', this.report.dates.start);
+                    params.append('end', this.report.dates.end);
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetNoCotizaciones","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.cotizaciones.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaLastMes.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetNumCotizaciones  b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.report.dates.start);
+                    params2.append('end', this.report.dates.end);
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetNoCotizaciones","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.cotizaciones.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.ventaLastMes.isGettingB2B = false)
+                    //
+                    let colors = ['#17a2b8', '#dee2e6', '#F89D44', '#85C441', '#36B3E3'];
+                    let piedata = [];
+                    piedata.push({ label: "B2B", data: [[1,this.cotizaciones.b2b]], color: colors[0]});
+                    piedata.push({ label: "B2C", data: [[1,this.cotizaciones.b2c]], color: colors[1]});
+                    this.PieChart(piedata, "#cotizaciones");
+                },
+                GetNumPedidos: async function () {
+                    // ventas al dia b2c
+                    console.log("GetNumCotizaciones  b2c")
+                    let params = new FormData();
+                    params.append('start', this.report.dates.start);
+                    params.append('end', this.report.dates.end);
+                    params.append('ModeBussiness', 'B2C');
+                    await axios.post('@Url.Action("DataGetNoPedidos","Cotizaciones")', params, { headers: this.serverToken }).then(response => {
+                        this.pedidos.b2c = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.pedidos.isGettingB2C = false)
+                    // ventas al dia b2b
+                    console.log("GetNumCotizaciones  b2b")
+                    let params2 = new FormData();
+                    params2.append('start', this.report.dates.start);
+                    params2.append('end', this.report.dates.end);
+                    params2.append('ModeBussiness', 'B2B');
+                    await axios.post('@Url.Action("DataGetNoPedidos","Cotizaciones")', params2, { headers: this.serverToken }).then(response => {
+                        this.pedidos.b2b = response.data.value;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.pedidos.isGettingB2B = false)
+                    //
+                    let colors = ['#17a2b8', '#dee2e6', '#F89D44', '#85C441', '#36B3E3'];
+                    let piedata = [];
+                    piedata.push({ label: "B2B", data: [[1,this.pedidos.b2b]], color: colors[0]});
+                    piedata.push({ label: "B2C", data: [[1,this.pedidos.b2c]], color: colors[1]});
+                    this.PieChart(piedata, "#pedidos");
+                },
+                PieChart: function (piedata, id) {
+                    $.plot(id, piedata, {
+                      series: {
+                        pie: {
+                          show: true,
+                          radius: 1,
+                          label: {
+                            show: true,
+                            radius: 2/3,
+                            formatter: this.labelFormatter,
+                            threshold: 0.1
+                          }
+                        }
+                      },
+                      grid: {
+                        hoverable: true,
+                        clickable: true
+                      }
+                    });
+                },
+                labelFormatter: function labelFormatter(label, series) {
+		            return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + Math.round(series.percent) + "%</div>";
+	            }
+            },
+            filters: {
+                formatPrice(value) {
+                    let val = (value/1).toFixed(2).replace('.', ',')
+                    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                }
+            }
+        });
+    </script>
+}

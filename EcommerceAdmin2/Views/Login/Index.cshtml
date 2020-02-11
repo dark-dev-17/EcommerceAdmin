@@ -78,7 +78,12 @@
                         if (response.data.error == false) {
                             this.loginSuccess = true;
                             //router.go('');
-                            window.location = '../Home';
+                            if ("About" == response.data.view) {
+                                window.location = '../Home/About';
+                            } else {
+                                window.location = '../Home';
+                            }
+                            
                         } else {
                             this.loginSuccess = false;
                         }

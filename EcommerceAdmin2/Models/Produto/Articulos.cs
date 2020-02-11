@@ -203,6 +203,42 @@ namespace EcommerceAdmin2.Models.Produto
                 throw ex;
             }
         }
+        public List<Articulos> GetarticulosTo5CotizacionesEcom(string ModeBussiness)
+        {
+            string statement = string.Format("select * from Admin_detalle_cotizacion_prodcuto where tipo_cliente = '{0}' order by cantidad desc limit 5", ModeBussiness);
+            List<Articulos> List = null;
+            MySqlDataReader DataReader = null;
+            try
+            {
+                DataReader = DBMysql.DoQuery(statement);
+                List = new List<Articulos>();
+                while (DataReader.Read())
+                {
+                    Articulos articulo = new Articulos();
+                    articulo.ItemCode = DataReader.GetString(0);
+                    articulo.Description = DataReader.GetString(1);
+                    articulo.Quantity = double.Parse(DataReader.GetInt32(2) + "");
+                    List.Add(articulo);
+                        
+                }
+                return List;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (DataReader != null)
+                {
+                    DataReader.Close();
+                }
+            }
+        }
         public List<Articulos> GetArticulosTopByQuantity(string CardCode)
         {
             string statement = string.Format("EXEC Eco_GetTop5ItemsByQuantityByCustomer @CardCode = '{0}'", CardCode);

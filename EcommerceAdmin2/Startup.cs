@@ -25,6 +25,10 @@ namespace EcommerceAdmin2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+            //services.Configure<IISServerOptions>(options =>
+            //{
+            //    options.AutomaticAuthentication = false;
+            //});
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromSeconds(3600);

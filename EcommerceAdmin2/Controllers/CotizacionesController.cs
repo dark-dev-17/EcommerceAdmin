@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EcommerceAdmin2.Models;
 using EcommerceAdmin2.Models.BussinesPartner;
+using EcommerceAdmin2.Models.Cotizaciones;
 using EcommerceAdmin2.Models.Documents;
 using EcommerceAdmin2.Models.Empleado;
 using EcommerceAdmin2.Models.Filters;
@@ -235,6 +236,98 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        [HttpPost]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetNoCotizaciones(DateTime start, DateTime end, string ModeBussiness)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Cotizacion DocumentGeneral = new Cotizacion(dBMysql1);
+                    int total = DocumentGeneral.GetNoCotizaciones(start, end, ModeBussiness);
+                    dBMysql1.CloseConnection();
+                    ResponseInt responseInt = new ResponseInt { Code = 0, Description = "Informacion obtenida", Type = "success", Value = total };
+                    return Ok(responseInt);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetNoPedidos(DateTime start, DateTime end, string ModeBussiness)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Cotizacion DocumentGeneral = new Cotizacion(dBMysql1);
+                    int total = DocumentGeneral.GetNoPedidos(start, end, ModeBussiness);
+                    dBMysql1.CloseConnection();
+                    ResponseInt responseInt = new ResponseInt { Code = 0, Description = "Informacion obtenida", Type = "success", Value = total };
+                    return Ok(responseInt);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetTotalPedidos(DateTime start, DateTime end, string Currency, string ModeBussiness)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Cotizacion DocumentGeneral = new Cotizacion(dBMysql1);
+                    double total = DocumentGeneral.GetTotalPedidos(start, end, Currency, ModeBussiness);
+                    dBMysql1.CloseConnection();
+                    ResponseDouble responseInt = new ResponseDouble { Code = 0, Description = "Informacion obtenida", Type = "success", Value = total };
+                    return Ok(responseInt);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -39,41 +39,14 @@
                         </table>
                     </div>
                 </div>
-
+                <div class="col-xl-12 mt-5 border">
+                    @System.Configuration.ConfigurationManager.AppSettings["Splinnet_Database"] <br />
+                    @System.Configuration.ConfigurationManager.AppSettings["SAP_Database"] <br />
+                    @System.Configuration.ConfigurationManager.AppSettings["Ecommerce_Database"] <br />
+                    @System.Configuration.ConfigurationManager.AppSettings["FTP_Server"]
+                </div>
             </div>
         </div>
-        <!-- template for the modal component -->
-        @*<script type="text/x-template" id="modal-template">
-            <transition name="modal">
-                <div class="modal-mask">
-                    <div class="modal-wrapper">
-                        <div class="modal-container" style="width: 1500px;">
-
-                            <div class="modal-header">
-                                <slot name="header">
-                                    Acciones
-                                </slot>
-                            </div>
-
-                            <div class="modal-body">
-                                <slot name="body">
-                                    default body
-                                </slot>
-                            </div>
-
-                            <div class="modal-footer">
-                                <slot name="footer">
-                                    default footer
-                                    <button class="modal-default-button" @@click="$emit('close')">
-                                        OK
-                                    </button>
-                                </slot>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-        </script>*@
         <!-- LARGE MODAL -->
         <div id="modal_modifyPermiss" class="modal fade">
             <div class="modal-dialog modal-lg" style="width: 80%; max-width:80%;" role="document">
