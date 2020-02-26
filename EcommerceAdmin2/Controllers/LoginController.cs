@@ -94,6 +94,7 @@ namespace EcommerceAdmin2.Controllers
                 HttpContext.Session.SetString("USR_Correo", Empleado.Correo);
                 HttpContext.Session.SetInt32("USR_IdArea", Empleado.IdArea);
                 HttpContext.Session.SetString("USR_Sociedad", Empleado.Sociedad);
+                HttpContext.Session.SetString("USR_Foto", Empleado.Foto);
             }
         }
     }

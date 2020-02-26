@@ -5,7 +5,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
 }
-#preloader .preloader {
+#preloader {
     position: fixed;
     top: 0;
     left: 0;
@@ -15,7 +15,7 @@
     background: black;
 }
 
-#loader .loader {
+#loader {
     display: block;
     position: relative;
     left: 50%;
@@ -30,7 +30,7 @@
     animation: spin 2s linear infinite;
 }
 
-    #loader:before .loader:before {
+    #loader:before {
         content: "";
         position: absolute;
         top: 5px;
@@ -44,7 +44,7 @@
         animation: spin 3s linear infinite;
     }
 
-    #loader:after .loader:after {
+    #loader:after {
         content: "";
         position: absolute;
         top: 15px;

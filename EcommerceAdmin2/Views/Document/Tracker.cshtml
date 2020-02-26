@@ -1,0 +1,485 @@
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Buscador de pedidos";
+}
+    <div id="app_tracker">
+        <div class="d-flex align-items-center justify-content-left bg-gray-100 ht-md-70 bd pd-x-10">
+            <div class="d-md-flex pd-y-20 pd-md-y-0">
+                <input type="text" class="form-control" v-model="DocEcommerce" placeholder="Folio del pedido ecommerce">
+                <button v-on:click="Rastrear();" class="btn btn-info pd-y-13 pd-x-20 bd-0 mg-md-l-10 mg-t-10 mg-md-t-0 tx-uppercase tx-11 tx-spacing-2">Rastrear</button>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div v-if="DocEcommerce != ''" class="col-lg-2 mg-t-30 mg-lg-t-0">
+                <div v-if="Documento.isGetting == false" class="card pd-20 pd-xs-30 shadow-base bd-0">
+                    <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información del documento</h6>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">No.Documento Ecommerce</label>
+                    <p class="tx-info mg-b-5">{{ DocEcommerce }}</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Tipo de documento</label>
+                    <p class="mg-b-5 badge badge-success" v-if="Documento.data.objeto.status == 'P'">Pedido</p>
+                    <p class="mg-b-5 badge badge-danger" v-if="Documento.data.objeto.status == 'C'">Cotización</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Fecha del documento</label>
+                    <p class="tx-info mg-b-5">{{ moment(Documento.data.objeto.docDate) }}</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Moneda del documento</label>
+                    <p class="tx-info mg-b-5">{{ Documento.data.objeto.docCur }}</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Tipo de cambio</label>
+                    <p class="tx-info mg-b-5">{{ Documento.data.objeto.docRate }}</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Sub total</label>
+                    <p class="tx-info mg-b-5">${{ formatPrice(Documento.data.objeto.docSubTotal)  }}</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Iva</label>
+                    <p class="tx-info mg-b-5">${{ formatPrice(Documento.data.objeto.docIva) }}</p>
+                    <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Total</label>
+                    <p class="tx-info mg-b-5">${{ formatPrice(Documento.data.objeto.docTotal)  }}</p>
+                    <div v-if="Documento.data.objeto.status == 'P'">
+                        <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Finanzas</h6>
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Metodo de pago</label>
+                        <p class="tx-info mg-b-5">{{ Documento.data.objeto.paymentMethod }}</p>
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Uso de CFDI</label>
+                        <p class="tx-info mg-b-5">{{ Documento.data.objeto.cfdiUser }}</p>
+
+                        <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Logistica</h6>
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Dirección de envio</label>
+                        <p class=" mg-b-5 "><a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="OpenModal('modal_shipto')" title="Ver información de la dirección">{{ Documento.data.objeto.shipTo }}</a></p>
+
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Dirección de facturación</label>
+                        <p class=" mg-b-5 "><a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="OpenModal('modal_BillTo')" title="Ver información de la dirección">{{ Documento.data.objeto.billTo }}</a></p>
+                    </div>
+
+                </div>
+                <div v-else class="card pd-20 pd-xs-30 shadow-base bd-0">
+                    <div class="d-flex   pos-relative align-items-center">
+                        <div class="sk-double-bounce">
+                            <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                            <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="DocEcommerce != ''" class="col-lg-8 mg-t-30 mg-lg-t-0">
+                <div v-if="DocumentLines.isGetting == false" class="card pd-20 pd-xs-30 shadow-base bd-0">
+                    <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Partidas del documento</h6>
+                    <table class="table display responsive nowrap" id="DocumentLInesCotizacionBP">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Codigo</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Sub Total</th>
+                                <th>Total + iva</th>
+                                <th>Moneda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in DocumentLines.data.records">
+                                <td><img style="width: 100px;" v-bind:src="item.imageLink" alt="imagen" /></td>
+                                <td class="align-middle">
+                                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 1,2,3,4,5,6,7 }))
+                                    {
+                                        <a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="verProdcuto(item.itemCode)" title="Ver información del producto">{{ item.itemCode }}</a>
+                                    }
+                                    else
+                                    {
+                                        <span>{{ item.itemCode }}</span>
+                                    }
+                                </td>
+                                <td class="align-middle">{{ item.dscription }}</td>
+                                <td class="align-middle">{{ item.quantity }}</td>
+                                <td class="align-middle">${{ formatPrice(item.lineSubTotal) }}</td>
+                                <td class="align-middle">${{ formatPrice(item.lineTotal)}}</td>
+                                <td class="align-middle">{{ item.currency }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-else class="card pd-20 pd-xs-30 shadow-base bd-0">
+                    <div class="d-flex   pos-relative align-items-center">
+                        <div class="sk-double-bounce">
+                            <div class="sk-child sk-double-bounce1 bg-info-800"></div>
+                            <div class="sk-child sk-double-bounce2 bg-info-800"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="DocEcommerce != '' && Documento.data.objeto.status =='P'" class="col-lg-2 mg-t-30 mg-lg-t-0">
+                <div>
+                    <div v-if="DocumentStatus.isGetting == false" class="card pd-20 pd-xs-30 shadow-base bd-0">
+                        <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información proceso</h6>
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Cotizacion SAP</label>
+                        <p class="tx-info mg-b-5">{{ DocumentStatus.data.docEntry }}</p>
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Estatus</label>
+                        <p class="mg-b-5 badge badge-info">{{ ShowStatus(DocumentStatus.data.status) }}</p>
+                        <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Número de guia</label>
+                        <p class="tx-info mg-b-5">{{ DocumentStatus.data.trackNo }}
+
+                    </div>
+                    <div v-else class="card pd-20 pd-xs-30 shadow-base bd-0">
+                        <div class="d-flex   pos-relative align-items-center">
+                            <div class="sk-double-bounce">
+                                <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                                <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div v-if="Cliente.isGetting == false" class="card pd-20 pd-xs-30 shadow-base bd-0">
+                        <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información del cliente</h6>
+                        <div v-if="Documento.data.objeto.id_cliente != 0">
+                            <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Cliente</label>
+                            <p class="tx-info mg-b-5">{{ Cliente.data.objeto.nombre }} {{ Cliente.data.objeto.apellidos }}</p>
+                            <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Telefono</label>
+                            <p class="tx-info mg-b-5">{{ Cliente.data.objeto.telefono }}</p>
+                            <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Correo</label>
+                            <p class="tx-info mg-b-5">{{ Cliente.data.objeto.email }}</p>
+                            <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Tipo de cliente</label>
+                            <p class="tx-info mg-b-5">{{ Cliente.data.objeto.tipoCliente }}</p>
+                            <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Codigo SAP</label>
+                            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 19 }))
+                            {
+                                <p class=" mg-b-5 "><a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="verCliente(Cliente.data.objeto.cardCode)" title="Ver información del cliente">{{ Cliente.data.objeto.cardCode }}</a></p>
+                            }
+                            else
+                            {
+                                <p class="tx-info mg-b-5">{{ Cliente.data.objeto.cardCode }}</p>
+                            }
+
+                            <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Sociedad</label>
+                            <p class="tx-info mg-b-5">{{ Cliente.data.objeto.sociedad }}</p>
+                        </div>
+                        <div v-else>
+                            <div class="alert alert-warning" role="alert">
+                                Esta cotización ha sido generada por un usuario sin sesión activa
+                            </div>
+                        </div>
+
+                    </div>
+                    <div v-else class="card pd-20 pd-xs-30 shadow-base bd-0">
+                        <div class="d-flex   pos-relative align-items-center">
+                            <div class="sk-double-bounce">
+                                <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                                <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        @*modals*@
+        <div id="modal_shipto" class="modal fade">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content tx-size-sm">
+                    <div class="modal-header pd-x-20">
+                        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">Direccion de envio</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body pd-20">
+                        <div v-if="ShipTo.isGetting == false">
+                            <div v-if="Documento.data.objeto.status == 'P' && Cliente.data.objeto.tipoCliente == 'B2B'">
+                                <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información dirección de envio</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Dirección</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.addressName }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Estado</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.state }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Ciudad</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.city }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Colonia</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.block }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Codigo postal</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.zipCode }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Calle</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.street }} No.ext {{ ShipTo.data.objeto.streetNo }}</p>
+
+                                <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Contacto</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Nombre</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.contactPerson.name }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Telefono</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.contactPerson.telphone }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Correo</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.contactPerson.email }}</p>
+                            </div>
+                            <div v-if="Cliente.data.objeto.tipoCliente == 'B2C'">
+                                <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información dirección de envio</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Estado</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.state }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Ciudad</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.city }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Colonia</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.block }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Codigo postal</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.zipCode }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Calle</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.street }} No.ext {{ ShipTo.data.objeto.streetNoExt }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Referencias</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.street }} No.ext {{ ShipTo.data.objeto.comments }}</p>
+
+                                <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Contacto</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Nombre</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.contactPerson.name }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Telefono</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.contactPerson.telphone }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Correo</label>
+                                <p class="tx-info mg-b-5">{{ ShipTo.data.objeto.contactPerson.email }}</p>
+                            </div>
+                        </div>
+                        <div v-else class="card pd-20 pd-xs-30 shadow-base bd-0">
+                            <div class="d-flex   pos-relative align-items-center">
+                                <div class="sk-double-bounce">
+                                    <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                                    <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- modal-body -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary tx-size-xs" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div><!-- modal-dialog -->
+        </div><!-- modal -->
+        <div id="modal_BillTo" class="modal fade">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content tx-size-sm">
+                    <div class="modal-header pd-x-20">
+                        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold">Direccion de facturación</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body pd-20">
+                        <div v-if="BillTo.isGetting == false">
+                            <div v-if="Documento.data.objeto.status == 'P' && Cliente.data.objeto.tipoCliente == 'B2B'">
+                                <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información dirección de facturación</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Dirección</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.addressName }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">RFC</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.federalTaxID }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Estado</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.state }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Ciudad</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.city }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Colonia</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.county }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Codigo postal</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.zipCode }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Calle</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.street }} No.ext {{ ShipTo.data.objeto.streetNo }}</p>
+
+                                @*<h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Contacto</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Nombre</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.contactPerson.name }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Telefono</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.contactPerson.telphone }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Correo</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.contactPerson.email }}</p>*@
+                            </div>
+                            <div v-if="Cliente.data.objeto.tipoCliente == 'B2C'">
+                                <h6 class="tx-gray-800 tx-uppercase tx-semibold tx-13 mg-b-10">Información dirección de facturación</h6>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">RFC</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.federalTaxID }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Estado</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.state }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Ciudad</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.city }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Colonia</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.county }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Codigo postal</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.zipCode }}</p>
+                                <label class="tx-10 tx-uppercase tx-mont tx-medium tx-spacing-1 mg-b-2">Calle</label>
+                                <p class="tx-info mg-b-5">{{ BillTo.data.objeto.street }} No.ext {{ ShipTo.data.objeto.streetNoExt }}</p>
+                            </div>
+                        </div>
+                        <div v-else class="card pd-20 pd-xs-30 shadow-base bd-0">
+                            <div class="d-flex   pos-relative align-items-center">
+                                <div class="sk-double-bounce">
+                                    <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                                    <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- modal-body -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary tx-size-xs" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div><!-- modal-dialog -->
+        </div><!-- modal -->
+    </div>
+
+@section Scripts {
+    <script>
+        var app_tracker = new Vue({
+            el: "#app_tracker",
+            data: {
+                serverToken: {
+                    'RequestVerificationToken': document.querySelector("input[name=__RequestVerificationToken]").value
+                },
+                DocEcommerce: "@ViewData["DocEcommerce"]",
+                Documento: {
+                    data: null,
+                    isGetting: true
+                },
+                Cliente: {
+                    data: null,
+                    isGetting: true
+                },
+                DocumentLines: {
+                    data: null,
+                    isGetting: true
+                },
+                ShipTo: {
+                    data: null,
+                    isGetting: true
+                },
+                BillTo: {
+                    data: null,
+                    isGetting: true
+                },
+                DocumentStatus: {
+                    data: null,
+                    isGetting: true
+                }
+            },
+            mounted() {
+                if (this.DocEcommerce != "") {
+                    this.Rastrear();
+                } else {
+                    console.log("No se ha seleccionado ningun pedido");
+                }
+            },
+            methods: {
+                OpenModal: function (id_modal) {
+                    $("#"+id_modal).modal("show");
+                },
+                Rastrear: async function () {
+                    await this.GetDocumento();
+                    await this.GetDocumentoStatus();
+
+                    await this.GetDocumentLines();
+                    await this.GetCliente();
+                    
+                    await this.GetShipTo();
+                    await this.GetBillTo();
+                },
+                GetDocumentoStatus: async function () {
+                    if (this.Documento.data.objeto.status == "P") {
+                        var params = new URLSearchParams();
+                        params.append('DocEcommerce', '' + this.DocEcommerce);
+                        await axios.post('@Url.Action("DataGetOrderStatus","Document")', params, { headers: this.serverToken }).then(response => {
+                            this.DocumentStatus.data = response.data
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.DocumentStatus.isGetting = false);
+                    } else {
+                        console.log("Se omite estatus")
+                    }
+                    
+                },
+                GetShipTo: async function () {
+                    if (this.Documento.data.objeto.status == "P") {
+                        if (this.Cliente.data.objeto.tipoCliente == "B2C") {
+                            var params = new URLSearchParams();
+                                params.append('id', '' + this.Documento.data.objeto.shipTo);
+                            await axios.post('@Url.Action("DataGetShipToAddressesIdEcom","Addresses")', params, {headers: this.serverToken}).then(response => {
+                                this.ShipTo.data = response.data
+                            }).catch(error => {
+                                alert(error.response.data);
+                            }).finally(() => this.ShipTo.isGetting = false);
+                        } else {
+                            var params = new URLSearchParams();
+                                params.append('CardCode', '' + this.Cliente.data.objeto.cardCode);
+                                params.append('AddressName', '' + this.Documento.data.objeto.shipTo);
+                            await axios.post('@Url.Action("DataGetShipToAddressesIdSAP","Addresses")', params, {headers: this.serverToken}).then(response => {
+                                this.ShipTo.data = response.data
+                            }).catch(error => {
+                                alert(error.response.data);
+                            }).finally(() => this.ShipTo.isGetting = false);
+                        }
+                    }
+                },
+                GetBillTo: async function () {
+                    if (this.Documento.data.objeto.status == "P") {
+                        if (this.Cliente.data.objeto.tipoCliente == "B2C") {
+                            var params = new URLSearchParams();
+                                params.append('id', '' + this.Documento.data.objeto.billTo);
+                            await axios.post('@Url.Action("DataGetBillToAddressesIdEcom","Addresses")', params, {headers: this.serverToken}).then(response => {
+                                this.BillTo.data = response.data
+                            }).catch(error => {
+                                alert(error.response.data);
+                            }).finally(() => this.BillTo.isGetting = false);
+                        } else {
+                            var params = new URLSearchParams();
+                                params.append('CardCode', '' + this.Cliente.data.objeto.cardCode);
+                                params.append('AddressName', '' + this.Documento.data.objeto.billTo);
+                            await axios.post('@Url.Action("DataGetBillToAddressesIdSAP","Addresses")', params, {headers: this.serverToken}).then(response => {
+                                this.BillTo.data = response.data
+                            }).catch(error => {
+                                alert(error.response.data);
+                            }).finally(() => this.BillTo.isGetting = false);
+                        }
+                    }
+                },
+                GetDocumento: async function () {
+                    var params = new URLSearchParams();
+                        params.append('DocNumEcommerce', '' + this.DocEcommerce);
+                    await axios.post('@Url.Action("DataGetOrdersById","Cotizaciones")', params, {headers: this.serverToken}).then(response => {
+                        this.Documento.data = response.data
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.Documento.isGetting = false);
+                },
+                GetCliente: async function () {
+                    if (this.Documento.data.objeto.id_cliente != null && this.Documento.data.objeto != undefined && this.Documento.data.objeto.id_cliente != 0) {
+                        var params = new URLSearchParams();
+                        params.append('id_cliente', '' + this.Documento.data.objeto.id_cliente);
+                        await axios.post('@Url.Action("DataGetByIdEcom","BussinesPartner")', params, { headers: this.serverToken }).then(response => {
+                            this.Cliente.data = response.data
+                        }).catch(error => {
+                            alert(error.response.data);
+                        }).finally(() => this.Cliente.isGetting = false);
+                    } else {
+                        this.Cliente.isGetting = false
+                        console.log("Se omite cliente")
+                    }
+                },
+                GetDocumentLines: async function () {
+                    var params = new URLSearchParams();
+                    params.append('DocNumEcommerce', '' + this.DocEcommerce);
+                    await axios.post('@Url.Action("DocumentLinesByOrderEcome","DocumentLines")',params,{ headers: this.serverToken }).then(response => {
+                        this.DocumentLines.data = response.data;
+                    }).catch(error => {
+                        alert(error.response.data);
+                    }).finally(() => this.DocumentLines.isGetting = false);
+                },
+                formatPrice: function(value) {
+                    let val = (value/1).toFixed(2).replace('.', ',')
+                    return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                },
+                verCliente: function (CardCode) {
+                    window.location = '@Url.Action("Show","BussinesPartner")/' + CardCode;
+                },
+                verProdcuto: function (ItemCode) {
+                    window.location = '@Url.Action("Show","Producto")/' + ItemCode;
+                },
+                moment: function (date) {
+                    return moment(date).locale('es').format('MMMM Do YYYY');
+                },
+                ShowStatus: function(value) {
+                    if (value == 1)
+                        return "SURTIENDO";
+                    if (value == 2)
+                        return "EMBARCANDO";
+                    if (value == 3)
+                        return "ENVIADO";
+                    if (value == 4)
+                        return "ENTREGADO";
+                },
+            }
+        });
+
+    </script>
+}

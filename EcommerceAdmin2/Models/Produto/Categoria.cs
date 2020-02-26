@@ -66,6 +66,50 @@ namespace EcommerceAdmin2.Models.Produto
                 }
             }
         }
+        public List<Categoria> GetQuoatationsDashboard(DateTime start, DateTime end, string ModeBussiness, string tipoDocumento)
+        {
+            string Statement = string.Format("Admin_QuotationsDashboard|startdate@DATETIME={0}&enddate@DATETIME={1}&tipoDocumento@VARCHAR={2}&ModeBussiness@VARCHAR={3}&ModeQuery@INT={4}",
+                start.ToString("yyyy-MM-dd"),
+                end.ToString("yyyy-MM-dd 23:59:59"),
+                tipoDocumento,
+                ModeBussiness,
+                2);
+            MySqlDataReader data = null;
+            List<Categoria> List;
+            try
+            {
+                data = DBMysql.ExecuteStoreProcedureReader(Statement);
+                List = new List<Categoria>();
+                while (data.Read())
+                {
+                    Categoria categoria = new Categoria();
+                    categoria.Id_categoria = data.IsDBNull(0) ? "" : (data.GetString(0) + "");
+                    categoria.Description = data.IsDBNull(1) ? "" : data.GetString(1);
+                    categoria.Total = data.IsDBNull(2) ? 0 : (int)data.GetDouble(2);
+                    List.Add(categoria);
+                }
+                return List;
+            }
+            catch (DBException ex)
+            {
+                throw ex;
+            }
+            catch (MySqlException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (data != null)
+                {
+                    data.Close();
+                }
+            }
+        }
         #endregion
     }
 }

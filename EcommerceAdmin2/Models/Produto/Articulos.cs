@@ -219,7 +219,6 @@ namespace EcommerceAdmin2.Models.Produto
                     articulo.Description = DataReader.GetString(1);
                     articulo.Quantity = double.Parse(DataReader.GetInt32(2) + "");
                     List.Add(articulo);
-                        
                 }
                 return List;
             }

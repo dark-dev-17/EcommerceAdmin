@@ -1,50 +1,75 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Pedidos en proceso";
 }
-    <div id="app_DocumentList">
-        <div class="br-section-wrapper">
-            <div class="table-wrapper">
-                <div v-if="loading === true">
-                    cargando ...
+<div id="app_DocumentList">
+    <div class="br-section-wrapper">
+        <div class="table-wrapper">
+            <div v-if="loading === true">
+                <div class="d-flex   pos-relative align-items-center">
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                        <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                    </div>
                 </div>
-                <div v-if="loading === false">
-                    <table class="table display responsive nowrap " id="table_documents">
-                        <thead>
-                            <tr>
-                                <th>No.Ecom</th>
-                                <th>No.Cotizacion SAP</th>
-                                <th>Cliente</th>
-                                <th>Nombre</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Moneda</th>
-                                <th>status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in userData.records">
-                                <td>{{ item.docNumEcommerce }}</td>
-                                <td><a href="#" v-on:click="ShowDocumentLines(item.docNum,item.docType)" title="Ver articulos" class="">{{ item.docNum }}</a></td>
-                                <td>{{ item.cardCode }}</td>
-                                <td>{{ item.cardname }}</td>
-                                <td>{{ item.docDate | moment  }}</td>
-                                <td>${{ formatPrice(item.docTotal) }}</td>
-                                <td>{{ item.docCur }}</td>
-                                <td>{{ item.status | status }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </div>
+            <div v-if="loading === false">
+                <table class="table display responsive nowrap " id="table_documents">
+                    <thead>
+                        <tr>
+                            <th>No.Ecom</th>
+                            <th>No.Cotizacion SAP</th>
+                            <th>Cliente</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Moneda</th>
+                            <th>status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in userData.records">
+                            <td>
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 22 }))
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success " v-on:click="ShowDocumentTracker(item.docNumEcommerce)" title="Ver información del documento">{{ item.docNumEcommerce }}</a>
+                                }
+                                else
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success " v-on:click="ShowDocumentLines(item.docNumEcommerce)" title="Ver articulos">{{ item.docNumEcommerce }}</a>
+                                }
+                            </td>
+                            <td><a href="#" v-on:click="ShowDocumentLines(item.docNum,item.docType)" title="Ver articulos" class="">{{ item.docNum }}</a></td>
+                            <td>
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 19 }))
+                                {
+                                    <button class="btn btn-sm btn-outline-success " v-on:click="verCliente(item.cardCode)" title="Ver información del cliente">{{ item.cardCode }}</button>
+                                }
+                                else
+                                {
+                                    <p class="tx-info mg-b-5">{{ item.cardCode }}</p>
+                                }
+                            </td>
+                            <td>{{ item.cardname }}</td>
+                            <td>{{ item.docDate | moment  }}</td>
+                            <td>${{ formatPrice(item.docTotal) }}</td>
+                            <td>{{ item.docCur }}</td>
+                            <td>{{ item.status | status }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 @section Scripts {
-                <script>
+    <script>
         var app_login = new Vue({
             el: '#app_DocumentList',
             data: {
-                userData: {},
+                userData: {
+                },
                 Error: {
                     Error: false,
                     Description: ""
@@ -53,21 +78,17 @@
                 loading: true
             },
             async mounted() {
-                RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
-                    const headers = {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': RequestVerificationToken
-                    }
-                await axios.post('./DataList', null,headers).then(response => {
-                    this.userData = response.data;
-                    this.RecordCound = this.userData.count;
-                    console.log(this.userData);
-                }).catch(error => {
-                    console.log(error);
-                }).finally(() => this.loading = false);
+                await this.GetListDocuments();
+                this.loading = false
                 $('#table_documents').DataTable();
             },
             methods: {
+                ShowDocumentTracker: function (DocEntry) {
+                    window.location = '@Url.Action("Tracker","Document")/' + DocEntry;
+                },
+                verCliente: function (CardCode) {
+                    window.location = '@Url.Action("Show","BussinesPartner")/' + CardCode;
+                },
                 ShowDocumentLines: function (DocEntry, DocType) {
                     window.location = '../DocumentLines/List/' + DocEntry + '/' + DocType;
                 },
@@ -75,13 +96,13 @@
                     let val = (value / 1).toFixed(2).replace('.', ',')
                     return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
                 },
-                GetListDocuments: function () {
+                GetListDocuments: async function () {
                     RequestVerificationToken = document.querySelector("input[name=__RequestVerificationToken]").value
                         const headers = {
                             'Content-Type': 'application/json',
                             'RequestVerificationToken': RequestVerificationToken
                         }
-                    axios.post('./DataList', null,headers).then(response => {
+                    await axios.post('./DataList', null,headers).then(response => {
                         this.userData = response.data;
                         this.RecordCound = this.userData.count;
                         console.log(this.userData);
@@ -117,7 +138,7 @@
                 }
             }
         })
- </script>
+    </script>
 }
 
 

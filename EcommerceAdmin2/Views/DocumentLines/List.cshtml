@@ -1,4 +1,5 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Detalle pedido en proceso: " + ViewData["DocEntry"];
 }
@@ -6,12 +7,18 @@
     <div class="br-section-wrapper">
         <div class="table-wrapper">
             <div v-if="loading === true">
-                cargando ...
+                <div class="d-flex   pos-relative align-items-center">
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                        <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                    </div>
+                </div>
             </div>
             <div v-if="loading === false">
                 <table class="table display responsive nowrap" id="documentLineOrderProcess">
                     <thead>
                         <tr>
+                            <th>Imagen</th>
                             <th>Codigo</th>
                             <th>Descripción</th>
                             <th>Cantidad</th>
@@ -22,12 +29,22 @@
                     </thead>
                     <tbody>
                         <tr v-for="item in userData.records">
-                            <td>{{ item.itemCode }}</td>
-                            <td>{{ item.dscription }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ formatPrice(item.price * item.quantity) }}</td>
-                            <td>${{ formatPrice(item.price * item.quantity  +   (item.vatPercent/100) * item.price * item.quantity)}}</td>
-                            <td>{{ item.currency }}</td>
+                            <td class="align-middle"><img style="width: 100px;" v-bind:src="item.imageLink" alt="imagen" /></td>
+                            <td class="align-middle">
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 1, 2, 3, 4, 5, 6, 7 }))
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="verProdcuto(item.itemCode)" title="Ver información del producto">{{ item.itemCode }}</a>
+                                }
+                                else
+                                {
+                                    <span>{{ item.itemCode }}</span>
+                                }
+                            </td>
+                            <td class="align-middle">{{ item.dscription }}</td>
+                            <td class="align-middle">{{ item.quantity }}</td>
+                            <td class="align-middle">${{ formatPrice(item.price * item.quantity) }}</td>
+                            <td class="align-middle">${{ formatPrice(item.price * item.quantity  +   (item.vatPercent/100) * item.price * item.quantity)}}</td>
+                            <td class="align-middle">{{ item.currency }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -58,6 +75,9 @@
                 this.GetDocumentLines();
             },
             methods: {
+                verProdcuto: function (ItemCode) {
+                    window.location = '@Url.Action("Show","Producto")/' + ItemCode;
+                },
                 GetDocumentLines: async function () {
                     var params = new URLSearchParams();
                     params.append('DocEntry', '' + this.Document.DocEntry);
@@ -71,7 +91,7 @@
                         console.log(error);
                     }).finally(() => this.loading = false)
                      $('#documentLineOrderProcess').DataTable();
-                    
+
                 },
                 formatPrice: function(value) {
                     let val = (value/1).toFixed(2).replace('.', ',')

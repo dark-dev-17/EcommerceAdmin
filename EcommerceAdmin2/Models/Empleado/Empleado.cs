@@ -17,6 +17,7 @@ namespace EcommerceAdmin2.Models.Empleado
         public string Apellidomaterno { private set; get; }
         public string Correo { private set; get; }
         public string Sociedad { private set; get; }
+        public string Foto { private set; get; }
         public int IdArea { private set; get; }
         public List<int> Id_sap { private set; get; }
         private DBMysql DBMysql;
@@ -39,7 +40,7 @@ namespace EcommerceAdmin2.Models.Empleado
         }
         public int GetEmpleado(int Id)
         {
-            string Statement = string.Format("SELECT ID,username,email,nombre,apaterno,amaterno,id_area,sociedad FROM signup where ID = '{0}';", Id);
+            string Statement = string.Format("SELECT ID,username,email,nombre,apaterno,amaterno,id_area,sociedad,foto FROM signup where ID = '{0}';", Id);
             int ResponseProces = 0;
             try
             {
@@ -55,6 +56,7 @@ namespace EcommerceAdmin2.Models.Empleado
                     Apellidomaterno = DataReader.IsDBNull(5) ? "" : DataReader.GetString(5);
                     IdArea = DataReader.IsDBNull(6) ? 0 : DataReader.GetInt32(6);
                     Sociedad = DataReader.IsDBNull(7) ? "" : DataReader.GetString(7);
+                    Foto = DataReader.IsDBNull(8) ? "" : DataReader.GetString(8);
                     DataReader.Close();
                     //Id_sap = GetIdSapDB(Id);
                 }

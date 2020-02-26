@@ -18,6 +18,7 @@
         <link href="~/template/lib/rickshaw/rickshaw.min.css" rel="stylesheet">
         <link href="~/template/lib/chartist/chartist.css" rel="stylesheet">
         <link href="~/template/lib/select2/css/select2.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
         <!-- Bracket CSS -->
         <link rel="stylesheet" href="~/template/css/bracket.css">
         <link rel="stylesheet" href="~/css/site.css">
@@ -39,6 +40,7 @@
         <link href="~/template/lib/rickshaw/rickshaw.min.css" rel="stylesheet">
         <link href="~/template/lib/chartist/chartist.css" rel="stylesheet">
         <link href="~/template/lib/select2/css/select2.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
         <!-- Bracket CSS -->
         <link rel="stylesheet" href="~/template/css/bracket.css">
         <link rel="stylesheet" href="~/css/site.css">
@@ -56,8 +58,11 @@
     @using EcommerceAdmin2.Models.Filters
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
     @inject IHttpContextAccessor HttpContextAccessor
-    @{var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();}
-    @if (controllerName == "Login")
+    @{
+        var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+        var controllerAction = this.ViewContext.RouteData.Values["action"].ToString();
+    }
+    @if (controllerName == "Login" || controllerName == "ErrorPages")
     {
     @RenderBody()
     }
@@ -66,72 +71,92 @@
     <div class="br-logo"><a href="#"><span>[</span>Ecommerce<span>]</span></a></div>
     <div class="br-sideleft overflow-y-auto">
         <div class="br-sideleft-menu">
-                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 18 }))
+            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 18 }))
+            {
+                @if (controllerName == "Home" && controllerAction == "Index")
                 {
-                        <a href="@Url.Action("Index","Home")" class="br-menu-link">
+                    <a href="@Url.Action("Index","Home")" class="br-menu-link active">
                         <div class="br-menu-item">
                             <i class="menu-item-icon icon ion-ios-home-outline tx-22"></i>
                             <span class="menu-item-label">Dashboard </span>
                         </div><!-- menu-item -->
                     </a><!-- br-menu-link -->
                 }
-                
-                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12, 13, 14, 15, 16 }))
+                else
                 {
-                    <a href="#" class="br-menu-link active show-sub">
+                    <a href="@Url.Action("Index","Home")" class="br-menu-link">
                         <div class="br-menu-item">
-                            <i class="menu-item-icon icon ion-ios-paper-outline  tx-24"></i>
-                            <span class="menu-item-label">Ventas</span>
-                            <i class="menu-item-arrow fa fa-angle-down"></i>
+                            <i class="menu-item-icon icon ion-ios-home-outline tx-22"></i>
+                            <span class="menu-item-label">Dashboard </span>
                         </div><!-- menu-item -->
                     </a><!-- br-menu-link -->
-                    <ul class="br-menu-sub nav flex-column">
-                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 9, 10 }))
-                        {
-                            <li class="nav-item"><a href="@Url.Action("List","BussinesPartner")" class="nav-link active">Clientes</a></li>
-                        }
-                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12 }))
-                        {
-                            <li class="nav-item"><a href="@Url.Action("List","Cotizaciones")" class="nav-link">Cotizaciones ecommerce</a></li>
-                        }
-                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 15, 16 }))
-                        {
-                            <li class="nav-item"><a href="@Url.Action("List","Document")" class="nav-link">Documentos en proceso</a></li>
-                        }
-                        @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 13, 14 }))
-                        {
-                            <li class="nav-item"><a href="@Url.Action("Rejected","Document")" class="nav-link">Pedidos rechazados</a></li>
-                        }
-                    </ul>
-                }
-                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 1))
-                {
-                    <a href="#" class="br-menu-link">
-                        <div class="br-menu-item">
-                            <i class="menu-item-icon icon ion-ios-briefcase-outline tx-24"></i>
-                            <span class="menu-item-label">Marketing</span>
-                            <i class="menu-item-arrow fa fa-angle-down"></i>
-                        </div><!-- menu-item -->
-                    </a><!-- br-menu-link -->
-                    <ul class="br-menu-sub nav flex-column">
-                        <li class="nav-item"><a href="@Url.Action("List","Producto")" class="nav-link">Productos fijos</a></li>
-                    </ul>
-                }
-                @if ((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet") == 48)
-                {
-                    <a href="#" class="br-menu-link">
-                        <div class="br-menu-item">
-                            <i class="menu-item-icon icon ion-ios-gear-outline tx-24"></i>
-                            <span class="menu-item-label">Administrador</span>
-                            <i class="menu-item-arrow fa fa-angle-down"></i>
-                        </div><!-- menu-item -->
-                    </a><!-- br-menu-link -->
-                    <ul class="br-menu-sub nav flex-column">
-                        <li class="nav-item"><a href="@Url.Action("Index","AccessCtr")" class="nav-link">Accesos</a></li>
-                    </ul>
                 }
 
-            </div><!-- br-sideleft-menu -->
+            }
+
+            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12, 13, 14, 15, 16, 20, 21,22 }))
+            {
+                <a href="#" class="br-menu-link  show-sub">
+                    <div class="br-menu-item">
+                        <i class="menu-item-icon icon ion-ios-paper-outline  tx-24"></i>
+                        <span class="menu-item-label">Ventas</span>
+                        <i class="menu-item-arrow fa fa-angle-down"></i>
+                    </div><!-- menu-item -->
+                </a><!-- br-menu-link -->
+                <ul class="br-menu-sub nav flex-column">
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 22 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("Tracker","Document")" class="nav-link active">Buscador de pedidos</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 9, 10 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("List","BussinesPartner")" class="nav-link">Clientes</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 11, 12 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("List","Cotizaciones")" class="nav-link">Cotizaciones ecommerce</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 15, 16 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("List","Document")" class="nav-link">Documentos en proceso</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 20, 21 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("History","Document")" class="nav-link">Historico de pedidos</a></li>
+                    }
+                    @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 13, 14 }))
+                    {
+                        <li class="nav-item"><a href="@Url.Action("Rejected","Document")" class="nav-link">Pedidos rechazados</a></li>
+                    }
+                </ul>
+            }
+            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), 1))
+            {
+                <a href="#" class="br-menu-link">
+                    <div class="br-menu-item">
+                        <i class="menu-item-icon icon ion-ios-briefcase-outline tx-24"></i>
+                        <span class="menu-item-label">Marketing</span>
+                        <i class="menu-item-arrow fa fa-angle-down"></i>
+                    </div><!-- menu-item -->
+                </a><!-- br-menu-link -->
+                <ul class="br-menu-sub nav flex-column">
+                    <li class="nav-item"><a href="@Url.Action("List","Producto")" class="nav-link">Productos fijos</a></li>
+                </ul>
+            }
+            @if ((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet") == 48)
+            {
+                <a href="#" class="br-menu-link">
+                    <div class="br-menu-item">
+                        <i class="menu-item-icon icon ion-ios-gear-outline tx-24"></i>
+                        <span class="menu-item-label">Administrador</span>
+                        <i class="menu-item-arrow fa fa-angle-down"></i>
+                    </div><!-- menu-item -->
+                </a><!-- br-menu-link -->
+                <ul class="br-menu-sub nav flex-column">
+                    <li class="nav-item"><a href="@Url.Action("Index","AccessCtr")" class="nav-link">Accesos</a></li>
+                </ul>
+            }
+        </div><!-- br-sideleft-menu -->
     </div><!-- br-sideleft -->
 
     <div class="br-header">
@@ -145,7 +170,7 @@
                 <div class="dropdown">
                     <a href="" class="nav-link nav-link-profile" data-toggle="dropdown">
                         <span class="logged-name hidden-md-down">@HttpContextAccessor.HttpContext.Session.GetString("USR_Nombre") @HttpContextAccessor.HttpContext.Session.GetString("USR_ApellidoPaterno")</span>
-                        <img src="http://via.placeholder.com/64x64" class="wd-32 rounded-circle" alt="">
+                        <img src="http://192.168.2.29/FMX_V2/pages/fotos/@HttpContextAccessor.HttpContext.Session.GetString("USR_Foto")" class="wd-32 rounded-circle" alt="">
                         <span class="square-10 bg-success"></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-header wd-200">
@@ -169,7 +194,6 @@
             <h4 class="tx-gray-800 mg-b-5">@ViewData["Title"]</h4>
             @*<p class="mg-b-0">Introducing Bracket apps &amp; pages, the most handsome admin template of all time.</p>*@
         </div>
-
         <div class="br-pagebody pd-x-20 pd-sm-x-30 pd-b-20">
             <div class="row">
                 <div class="col-12">
@@ -179,77 +203,79 @@
         </div><!-- br-pagebody -->
     </div><!-- br-mainpanel -->
     }
-    <environment include="Development">
-        <script src="~/template/lib/jquery/jquery.js"></script>
-        <script src="~/template/lib/popper.js/popper.js"></script>
-        <script src="~/template/lib/bootstrap/bootstrap.js"></script>
-        <script src="~/template/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
-        <script src="~/template/lib/moment/moment.js"></script>
-        <script src="~/template/lib/jquery-ui/jquery-ui.js"></script>
-        <script src="~/template/lib/jquery-switchbutton/jquery.switchButton.js"></script>
-        <script src="~/template/lib/peity/jquery.peity.js"></script>
-        <script src="~/template/lib/datatables/jquery.dataTables.js"></script>
-        <script src="~/template/lib/datatables-responsive/dataTables.responsive.js"></script>
-        <script src="~/template/js/bracket.js"></script>
-        <script src="~/template/lib/chartist/chartist.js"></script>
-        <script src="~/template/lib/jquery.sparkline.bower/jquery.sparkline.min.js"></script>
-        <script src="~/template/lib/d3/d3.js"></script>
-        <script src="~/template/lib/rickshaw/rickshaw.min.js"></script>
-        <script src="~/template/lib/highlightjs/highlight.pack.js"></script>
-        <script src="~/template/lib/Flot/jquery.flot.js"></script>
-        <script src="~/template/lib/Flot/jquery.flot.pie.js"></script>
-        <script src="~/template/lib/Flot/jquery.flot.resize.js"></script>
-        <script src="~/template/lib/flot-spline/jquery.flot.spline.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
-        <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
-        @if (controllerName != "Login")
-        {
+<environment include="Development">
+    <script src="~/template/lib/jquery/jquery.js"></script>
+    <script src="~/template/lib/popper.js/popper.js"></script>
+    <script src="~/template/lib/bootstrap/bootstrap.js"></script>
+    <script src="~/template/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
+    <script src="~/template/lib/moment/moment.js"></script>
+    <script src="~/template/lib/jquery-ui/jquery-ui.js"></script>
+    <script src="~/template/lib/jquery-switchbutton/jquery.switchButton.js"></script>
+    <script src="~/template/lib/peity/jquery.peity.js"></script>
+    <script src="~/template/lib/datatables/jquery.dataTables.js"></script>
+    <script src="~/template/lib/datatables-responsive/dataTables.responsive.js"></script>
+    <script src="~/template/js/bracket.js"></script>
+    <script src="~/template/lib/chartist/chartist.js"></script>
+    <script src="~/template/lib/jquery.sparkline.bower/jquery.sparkline.min.js"></script>
+    <script src="~/template/lib/d3/d3.js"></script>
+    <script src="~/template/lib/rickshaw/rickshaw.min.js"></script>
+    <script src="~/template/lib/highlightjs/highlight.pack.js"></script>
+    <script src="~/template/lib/Flot/jquery.flot.js"></script>
+    <script src="~/template/lib/Flot/jquery.flot.pie.js"></script>
+    <script src="~/template/lib/Flot/jquery.flot.resize.js"></script>
+    <script src="~/template/lib/flot-spline/jquery.flot.spline.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
+    <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    @if (controllerName != "Login")
+    {
         <script src="~/js/site.js" asp-append-version="true"></script>
-        }
+    }
 
-    </environment>
-    <environment exclude="Development">
-        @*<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
-                    asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                    asp-fallback-test="window.jQuery"
-                    crossorigin="anonymous"
-                    integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
-            </script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
-                    asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                    asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                    crossorigin="anonymous"
-                    integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd">
-            </script>*@
-        <script src="~/template/lib/jquery/jquery.js"></script>
-        <script src="~/template/lib/popper.js/popper.js"></script>
-        <script src="~/template/lib/bootstrap/bootstrap.js"></script>
-        <script src="~/template/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
-        <script src="~/template/lib/moment/moment.js"></script>
-        <script src="~/template/lib/jquery-ui/jquery-ui.js"></script>
-        <script src="~/template/lib/jquery-switchbutton/jquery.switchButton.js"></script>
-        <script src="~/template/lib/peity/jquery.peity.js"></script>
-        <script src="~/template/lib/datatables/jquery.dataTables.js"></script>
-        <script src="~/template/lib/datatables-responsive/dataTables.responsive.js"></script>
-        <script src="~/template/js/bracket.js"></script>
-        <script src="~/template/lib/chartist/chartist.js"></script>
-        <script src="~/template/lib/jquery.sparkline.bower/jquery.sparkline.min.js"></script>
-        <script src="~/template/lib/d3/d3.js"></script>
-        <script src="~/template/lib/rickshaw/rickshaw.min.js"></script>
-        <script src="~/template/lib/highlightjs/highlight.pack.js"></script>
-        <script src="~/template/lib/Flot/jquery.flot.js"></script>
-        <script src="~/template/lib/Flot/jquery.flot.pie.js"></script>
-        <script src="~/template/lib/Flot/jquery.flot.resize.js"></script>
-        <script src="~/template/lib/flot-spline/jquery.flot.spline.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
-        <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
-        @if (controllerName != "Login")
-        {
+</environment>
+<environment exclude="Development">
+    @*<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd">
+        </script>*@
+    <script src="~/template/lib/jquery/jquery.js"></script>
+    <script src="~/template/lib/popper.js/popper.js"></script>
+    <script src="~/template/lib/bootstrap/bootstrap.js"></script>
+    <script src="~/template/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
+    <script src="~/template/lib/moment/moment.js"></script>
+    <script src="~/template/lib/jquery-ui/jquery-ui.js"></script>
+    <script src="~/template/lib/jquery-switchbutton/jquery.switchButton.js"></script>
+    <script src="~/template/lib/peity/jquery.peity.js"></script>
+    <script src="~/template/lib/datatables/jquery.dataTables.js"></script>
+    <script src="~/template/lib/datatables-responsive/dataTables.responsive.js"></script>
+    <script src="~/template/js/bracket.js"></script>
+    <script src="~/template/lib/chartist/chartist.js"></script>
+    <script src="~/template/lib/jquery.sparkline.bower/jquery.sparkline.min.js"></script>
+    <script src="~/template/lib/d3/d3.js"></script>
+    <script src="~/template/lib/rickshaw/rickshaw.min.js"></script>
+    <script src="~/template/lib/highlightjs/highlight.pack.js"></script>
+    <script src="~/template/lib/Flot/jquery.flot.js"></script>
+    <script src="~/template/lib/Flot/jquery.flot.pie.js"></script>
+    <script src="~/template/lib/Flot/jquery.flot.resize.js"></script>
+    <script src="~/template/lib/flot-spline/jquery.flot.spline.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
+    <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    @if (controllerName != "Login")
+    {
         <script src="~/js/site.js" asp-append-version="true"></script>
-        }
-    </environment>
+    }
+</environment>
     <script>
         var PageMain = new Vue({
             el: "#PageMain",
@@ -261,6 +287,14 @@
             },
             mounted() {
                 this.loadingPageMain = false;
+            },
+            methods: {
+                verCliente: function (CardCode) {
+                    window.location = '@Url.Action("Show","BussinesPartner")/' + CardCode;
+                },
+                test: function (CardCode) {
+                    alert(CardCode)
+                }
             }
 
         });

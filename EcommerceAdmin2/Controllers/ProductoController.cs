@@ -423,6 +423,36 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 19)]
+        public IActionResult DataGetQuoatationsDashboard(DateTime start, DateTime end, string ModeBussiness, string tipoDocumento)
+        {
+            try
+            {
+                // conectar abase de  datos splittel
+                DBMysql dBMysql = new DBMysql("Ecommerce");
+                dBMysql.OpenConnection();
+                Categoria articulos = new Categoria(dBMysql);
+                // obtener articulos dados de alta en ecommercce
+                List<Categoria> result = articulos.GetQuoatationsDashboard(start, end, ModeBussiness, tipoDocumento);
+                ResponseList<Categoria> responseListq = new ResponseList<Categoria> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = result };
+                dBMysql.CloseConnection();
+                return Ok(responseListq);
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         private void ValidSessionsActions(int IdAction)
         {
             try

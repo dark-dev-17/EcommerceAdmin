@@ -176,5 +176,39 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessDataSession]
+        public IActionResult DocumentLinesByOrderEcome(int DocNumEcommerce)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    dBMysql1.OpenConnection();
+                    responseList = new ResponseList<DocumentLinesGeneral>
+                    {
+                        Code = 0,
+                        Description = "Autorization to access",
+                        Type = "Suscess",
+                        Records = new DocumentLinesGeneral(dBMysql1).GetDocumentLinesEcomerce((DocNumEcommerce + ""))
+                    };
+                    dBMysql1.CloseConnection();
+                    return Ok(responseList);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

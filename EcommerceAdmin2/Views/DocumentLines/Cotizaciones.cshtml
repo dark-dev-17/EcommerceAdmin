@@ -1,40 +1,57 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Detalle cotización: " + ViewData["DocEntry"];
 }
-    <div id="app_DocumentLinesByCotizacion">
-        <div class="br-section-wrapper">
-            <div class="table-wrapper">
-                <div v-if="loading === true">
-                    cargando ...
+<div id="app_DocumentLinesByCotizacion">
+    <div class="br-section-wrapper">
+        <div class="table-wrapper">
+            <div v-if="loading === true">
+                <div class="d-flex   pos-relative align-items-center">
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                        <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                    </div>
                 </div>
-                <div v-if="loading === false">
-                    <table class="table display responsive nowrap" id="DocumentLInesCotizacionBP">
-                        <thead>
-                            <tr>
-                                <th>Codigo</th>
-                                <th>Descripción</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
-                                <th>Total + iva</th>
-                                <th>Moneda</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in userData.records">
-                                <td>{{ item.itemCode }}</td>
-                                <td>{{ item.dscription }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>${{ formatPrice(item.lineSubTotal) }}</td>
-                                <td>${{ formatPrice(item.lineTotal)}}</td>
-                                <td>{{ item.currency }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </div>
+            <div v-if="loading === false">
+                <table class="table display responsive nowrap" id="DocumentLInesCotizacionBP">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Codigo</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th>Total + iva</th>
+                            <th>Moneda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in userData.records">
+                            <td class="align-middle"><img style="width: 100px;" v-bind:src="item.imageLink" alt="imagen" /></td>
+                            <td class="align-middle">
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 1, 2, 3, 4, 5, 6, 7 }))
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="verProdcuto(item.itemCode)" title="Ver información del producto">{{ item.itemCode }}</a>
+                                }
+                                else
+                                {
+                                    <span>{{ item.itemCode }}</span>
+                                }
+                            </td>
+                            <td class="align-middle">{{ item.dscription }}</td>
+                            <td class="align-middle">{{ item.quantity }}</td>
+                            <td class="align-middle">${{ formatPrice(item.lineSubTotal) }}</td>
+                            <td class="align-middle">${{ formatPrice(item.lineTotal)}}</td>
+                            <td class="align-middle">{{ item.currency }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 @section Scripts {
     <script>
         var app_login = new Vue({
@@ -56,6 +73,9 @@
                 this.GetDocumentLines();
             },
             methods: {
+                verProdcuto: function (ItemCode) {
+                    window.location = '@Url.Action("Show","Producto")/' + ItemCode;
+                },
                 GetDocumentLines: async function () {
                     var params = new URLSearchParams();
                     params.append('DocEntry', '' + this.Document.DocEntry);
@@ -69,7 +89,7 @@
                         console.log(error);
 
                     }).finally(() => this.loading = false);
-                    
+
                     $('#DocumentLInesCotizacionBP').DataTable();
                 },
                 formatPrice: function(value) {

@@ -143,8 +143,17 @@ namespace EcommerceAdmin2.Controllers
             ViewData["CardCode"] = id;
             return View();
         }
-        [AccessDataSession]
+        [AccessView(IdAction = 19)]
+        [HttpGet]
+        public IActionResult Show(string id)
+        {
+            ViewData["CardCode"] = id;
+            return View();
+        }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessDataSession]
         public IActionResult DataGetBussinesPartner(string CardCode)
         {
             try
@@ -172,8 +181,10 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [AccessDataSession]
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 19)]
         public IActionResult DataGetArticulosTopByQuantity(string CardCode)
         {
             try
@@ -206,8 +217,10 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [AccessDataSession]
+        
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 19)]
         public IActionResult DataGetArticulosTopByPrice(string CardCode)
         {
             try
@@ -241,6 +254,179 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetTotalClientesByType(string ModeBussiness)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Clientes clientes = new Clientes(dBMysql1);
+                    int total = clientes.GetTotalClientesByType(ModeBussiness);
+                    dBMysql1.CloseConnection();
+                    ResponseInt responseInt = new ResponseInt { Code = 0, Description = "Informacion obtenida", Type = "success", Value = total };
+                    return Ok(responseInt);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 19)]
+        public IActionResult DataGetAddressesBillToByBP(string CardCode)
+        {
+            try
+            {
+                using (DBSqlServer DBSqlServer = new DBSqlServer())
+                {
+                    DBSqlServer.OpenDataBaseAccess();
+                    Addresses addresses = new Addresses(DBSqlServer);
+
+                    ResponseList<Addresses> response = new ResponseList<Addresses>
+                    {
+                        Code = 0,
+                        Description = "Información obtenida",
+                        Records = addresses.GetAddressesBillToByBP(CardCode),
+                        Type = "success"
+                    };
+                    DBSqlServer.CloseDataBaseAccess();
+                    return Ok(response);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 19)]
+        public IActionResult DataGetAddressesShipToByBP(string CardCode)
+        {
+            try
+            {
+                using (DBSqlServer DBSqlServer = new DBSqlServer())
+                {
+                    DBSqlServer.OpenDataBaseAccess();
+                    Addresses addresses = new Addresses(DBSqlServer);
+
+                    ResponseList<Addresses> response = new ResponseList<Addresses>
+                    {
+                        Code = 0,
+                        Description = "Información obtenida",
+                        Records = addresses.GetAddressesShipToByBP(CardCode),
+                        Type = "success"
+                    };
+                    DBSqlServer.CloseDataBaseAccess();
+                    return Ok(response);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 19)]
+        public IActionResult DataGetQuoatationsDashboard(DateTime start, DateTime end, string ModeBussiness, string tipoDocumento)
+        {
+            try
+            {
+                // conectar abase de  datos splittel
+                DBMysql dBMysql = new DBMysql("Ecommerce");
+                dBMysql.OpenConnection();
+                Clientes articulos = new Clientes(dBMysql);
+                // obtener articulos dados de alta en ecommercce
+                List<Clientes> result = articulos.GetQuoatationsDashboard(start, end, ModeBussiness, tipoDocumento);
+                ResponseList<Clientes> responseListq = new ResponseList<Clientes> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = result };
+                dBMysql.CloseConnection();
+                return Ok(responseListq);
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessDataSession]
+        public IActionResult DataGetByIdEcom(int id_cliente)
+        {
+            try
+            {
+                // conectar abase de  datos splittel
+                DBMysql dBMysql = new DBMysql("Ecommerce");
+                dBMysql.OpenConnection();
+                Clientes articulos = new Clientes(dBMysql);
+                // obtener articulos dados de alta en ecommercce
+                bool result = articulos.GetById(id_cliente);
+                dBMysql.CloseConnection();
+                if (result)
+                {
+                    Response<Clientes> responseListq = new Response<Clientes> { Code = 0, Description = "Autorization to access", Type = "Suscess", Objeto = articulos };
+                    return Ok(responseListq);
+                }
+                else
+                {
+                    throw new Exception("No existe el cliente");
+                }
+                
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

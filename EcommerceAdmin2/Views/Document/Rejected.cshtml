@@ -1,39 +1,53 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
     ViewData["Title"] = "Pedidos en rechazados";
 }
-    <div id="app_DocumentListRejected">
-        <div class="br-section-wrapper">
-            <div class="table-wrapper">
-                <div v-if="loading === true">
-                    cargando ...
+<div id="app_DocumentListRejected">
+    <div class="br-section-wrapper">
+        <div class="table-wrapper">
+            <div v-if="loading === true">
+                <div class="d-flex   pos-relative align-items-center">
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                        <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                    </div>
                 </div>
-                <div v-if="loading === false">
-                    <table class="table display responsive nowrap" id="table_documentsRejected">
-                        <thead>
-                            <tr>
-                                <th>Documento</th>
-                                <th>Cliente</th>
-                                <th>Nombre</th>
-                                <th>Fecha</th>
-                                <th>status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in userData.records">
-                                <td><a href="#" v-on:click="" title="Ver articulos" class="">{{ item.docNum }}</a></td>
-                                <td>{{ item.cardCode }}</td>
-                                <td>{{ item.cardname }}</td>
-                                <td>{{ item.docDate }}</td>
-                                <td>{{ item.status }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </div>
+            <div v-if="loading === false">
+                <table class="table display responsive nowrap" id="table_documentsRejected">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Cliente</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in userData.records">
+                            <td><a href="#" v-on:click="" title="Ver articulos" class="">{{ item.docNum }}</a></td>
+                            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 19 }))
+                            {
+                                <td> <a href="#" v-on:click="verCliente(item.cardCode)" title="Ver información del cliente">{{ item.cardCode }}</a> </td>
+                            }
+                            else
+                            {
+                                <td> {{ item.cardCode }} </td>
+                            }
+                            <td>{{ item.cardname }}</td>
+                            <td>{{ item.docDate }}</td>
+                            <td>{{ item.status }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
- @section Scripts {
- <script>
+</div>
+@section Scripts {
+    <script>
         var app_login = new Vue({
             el: '#app_DocumentListRejected',
             data: {
@@ -65,17 +79,20 @@
                 await axios.post('./DataRejected', null,headers).then(response => {
                     this.userData = response.data;
                     this.RecordCound = this.userData.count;
-                    
+
                     console.log(this.userData);
                 }).catch(error => {
                     console.log(error);
                 }).finally(() => this.loading = false);
                 $('#table_documentsRejected').DataTable();
+            },
+            verCliente: function (CardCode) {
+                window.location = '@Url.Action("Show","BussinesPartner")/' + CardCode;
             }
         }
 
     })
- </script>
+    </script>
 }
 
 

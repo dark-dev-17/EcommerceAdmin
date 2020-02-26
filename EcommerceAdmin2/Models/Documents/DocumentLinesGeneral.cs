@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace EcommerceAdmin2.Models.Documents
         public double Quantity { get; set; }
         public double Price { get; set; }
         public string Currency { get; set; }
+        public string ImageLink { get { return ConfigurationManager.AppSettings["Ecommerce_Domain"].ToString() + string.Format(@"/store/public/images/img_spl/productos/{0}/1.jpg" , ItemCode); } }
         public double Rate { get; set; }
         public double LineTotal { get; set; }
         public double LineSubTotal { get; set; }

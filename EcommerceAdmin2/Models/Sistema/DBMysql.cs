@@ -200,6 +200,11 @@ namespace EcommerceAdmin2.Models.Sistema
                     cmd.Parameters.AddWithValue("@" + variable, value);
                     cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
                 }
+                if (type == "INT")
+                {
+                    cmd.Parameters.AddWithValue("@" + variable, Int32.Parse(value));
+                    cmd.Parameters["@" + variable].Direction = ParameterDirection.Input;
+                }
 
             }
         }
@@ -229,12 +234,13 @@ namespace EcommerceAdmin2.Models.Sistema
         }
         public int ExecuteProcedureInt(string Parameters, string output)
         {
+            MySqlCommand cmd;
             try
             {
                 CheckConnection();
                 //string ProcedureName = Parameters.Split('|')[0];
                 //string[] Paramet = Parameters.Split('|')[1].Split('&');
-                MySqlCommand cmd = new MySqlCommand();
+                cmd = new MySqlCommand();
                 cmd.Connection = Connection;
                 processParameters(Parameters,cmd);
                 //cmd.CommandType = CommandType.StoredProcedure;
@@ -280,6 +286,10 @@ namespace EcommerceAdmin2.Models.Sistema
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                
             }
         }
         public double ExecuteProcedureDouble(string Parameters, string output)
@@ -396,7 +406,8 @@ namespace EcommerceAdmin2.Models.Sistema
         public int CountDataReader(MySqlDataReader dataReader)
         {
             int count = 0;
-            while (dataReader.Read())
+            MySqlDataReader dataReader1 = dataReader;
+            while (dataReader1.Read())
             {
                 count++;
             }

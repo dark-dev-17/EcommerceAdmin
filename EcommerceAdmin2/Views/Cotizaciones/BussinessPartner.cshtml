@@ -1,4 +1,5 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Cotizaciones Ecommerce del cliente " + ViewData["CardCode"];
 }
@@ -6,13 +7,18 @@
     <div class="br-section-wrapper">
         <div class="table-wrapper">
             <div v-if="loading === true">
-                cargando ...
+                <div class="d-flex   pos-relative align-items-center">
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                        <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                    </div>
+                </div>
             </div>
             <div v-if="loading === false">
                 <table class="table table-bordered table-sm table-responsive-sm " id="tableCotizacionesBP">
                     <thead>
                         <tr>
-                            <th>No.Ecom</th>
+                            <th>No.Ecommerce</th>
                             <th>Cliente</th>
                             <th>Nombre</th>
                             <th>Fecha</th>
@@ -24,8 +30,27 @@
                     <tbody>
                         <tr v-for="item in userData.records">
 
-                            <td><a href="#" v-on:click="ShowDocumentLines(item.docNumEcommerce)" title="Ver articulos" class="">{{ item.docNumEcommerce }}</a></td>
-                            <td>{{ item.cardCode }}</td>
+                            <td>
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 22 }))
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success " v-on:click="ShowDocumentTracker(item.docNumEcommerce)" title="Ver información del documento">{{ item.docNumEcommerce }}</a>
+                                }
+                                else
+                                {
+                                    <a href="#" class="btn btn-sm btn-outline-success " v-on:click="ShowDocumentLines(item.docNumEcommerce)" title="Ver articulos">{{ item.docNumEcommerce }}</a>
+                                }
+
+                            </td>
+                            <td>
+                                @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 19 }))
+                                {
+                                    <button class="btn btn-sm btn-outline-success " v-on:click="verCliente(item.cardCode)" title="Ver información del cliente">{{ item.cardCode }}</button>
+                                }
+                                else
+                                {
+                                    <p class="tx-info mg-b-5">{{ item.cardCode }}</p>
+                                }
+                            </td>
                             <td>{{ item.cardname }}</td>
                             <td>{{ item.docDate | moment }}</td>
                             <td>${{ formatPrice(item.docTotal) }}</td>
@@ -55,13 +80,16 @@
                     },
                 RecordCound: 0,
                 loading: true,
-                    
+
             },
              mounted() {
                  this.GetListDocuments();
-                
+
             },
             methods: {
+                ShowDocumentTracker: function (DocEntry) {
+                    window.location = '@Url.Action("Tracker","Document")/' + DocEntry;
+                },
                 ShowDocumentLines: function (DocEntry) {
                     window.location = '../../DocumentLines/Cotizaciones/' + DocEntry;
                 },
@@ -80,13 +108,16 @@
                     await axios.post('../DataBussinessPartner', params,headers).then(response => {
                         this.userData = response.data;
                         this.RecordCound = this.userData.count;
-                        
+
                         console.log(this.userData);
                     }).catch(error => {
                         console.log(error);
                     }).finally(() => this.loading = false);
                     $('#tableCotizacionesBP').DataTable();
-                }
+                },
+                verCliente: function (CardCode) {
+                    window.location = '@Url.Action("Show","BussinesPartner")/' + CardCode;
+                },
             },
             filters: {
                 momentFull: function (date) {

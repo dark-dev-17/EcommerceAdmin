@@ -101,34 +101,25 @@ namespace EcommerceAdmin2.Controllers
                         // acceso a todos los clientes
                         AccessAll = usuario.AccessToAction(USR_IdSplinnet, 12);
                     }
-                    dBMysql.CloseConnection();
+                    
                     // obtener informacion de todos los clientes sin importar el ejecutivo
                     if (!AccessBySalesEmp && AccessAll)
                     {
-                        responseList = new ResponseList<DocumentGeneral> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<DocumentGeneral>() };
-                        List<BussinesPartner> bussinesPartners = null;
-                        using (DBSqlServer DBSqlServer = new DBSqlServer())
+                        ResponseList<Cotizacion>  responseLis = new ResponseList<Cotizacion> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<Cotizacion>() };
+                        using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
                         {
-                            bool IsConnectionDB = DBSqlServer.OpenDataBaseAccess();
-                            bussinesPartners = new BussinesPartner(DBSqlServer).SelectAllactive();
-                            using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
-                            {
-                                dBMysql1.OpenConnection();
-                                DocumentGeneral DocumentGeneral = new DocumentGeneral(dBMysql1);
-                                bussinesPartners.ForEach(bp =>
-                                {
-                                    DocumentGeneral.GetSalesQuotationEcomerce(responseList.Records, bp.CardCode, bp.CardName);
-                                });
-                                dBMysql1.CloseConnection();
-                            }
-                            DBSqlServer.CloseDataBaseAccess();
+                            dBMysql1.OpenConnection();
+                            Cotizacion cotizacion = new Cotizacion(dBMysql1);
+                            responseLis.Records = cotizacion.GetQuoatations();
+                            dBMysql1.CloseConnection();
                         }
-                        return Ok(responseList);
+                        dBMysql.CloseConnection();
+                        return Ok(responseLis);
                     }
                     // obtener informacion de clientes por ejecutivo
                     else if (AccessBySalesEmp && !AccessAll)
                     {
-                        responseList = new ResponseList<DocumentGeneral> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<DocumentGeneral>() };
+                        ResponseList<Cotizacion> responseLis = new ResponseList<Cotizacion> { Code = 0, Description = "Autorization to access", Type = "Suscess", Records = new List<Cotizacion>() };
                         using (Empleado empleado = new Empleado(dBMysql))
                         {
                             empleado.GetEmpleado(USR_IdSplinnet);
@@ -141,17 +132,18 @@ namespace EcommerceAdmin2.Controllers
                                 bussinesPartner.GetBussinesPartnersBySalesEmp(empleado.Id_sap, bussinesPartners);
                                 using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
                                 {
-                                    dBMysql.OpenConnection();
-                                    DocumentGeneral DocumentGeneral = new DocumentGeneral(dBMysql1);
-                                    bussinesPartners.ForEach(bp =>
+                                    dBMysql1.OpenConnection();
+                                    Cotizacion cotizacion = new Cotizacion(dBMysql1);
+                                    bussinesPartners.Where(bp => bp.IsActive && bp.IsActiveEcomerce).ToList().ForEach(bp =>
                                     {
-                                        DocumentGeneral.GetSalesQuotationEcomerce(responseList.Records, bp.CardCode, bp.CardName);
+                                        cotizacion.GetQuoatations(bp.CardCode).ForEach(aux => responseLis.Records.Add(aux));
                                     });
                                     dBMysql1.CloseConnection();
                                 }
                                 DBSqlServer.CloseDataBaseAccess();
                             }
-                            return Ok(responseList);
+                            dBMysql.CloseConnection();
+                            return Ok(responseLis);
                         }
                     }
                     else
@@ -299,6 +291,7 @@ namespace EcommerceAdmin2.Controllers
             }
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [AccessData(IdAction = 18)]
         public IActionResult DataGetTotalPedidos(DateTime start, DateTime end, string Currency, string ModeBussiness)
         {
@@ -329,5 +322,109 @@ namespace EcommerceAdmin2.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetOrdersInPendingByBP(string CardCode)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Cotizacion cotizacion = new Cotizacion(dBMysql1);
+                    List<Cotizacion> responses = cotizacion.GetOrdersInPendingByBP(CardCode);
+                    dBMysql1.CloseConnection();
+                    ResponseList<Cotizacion> responseCot = new ResponseList<Cotizacion> { Code = 0, Description = "Informacion obtenida", Type = "success", Records = responses };
+                    return Ok(responseCot);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessData(IdAction = 18)]
+        public IActionResult DataGetOrdersInPending()
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Cotizacion cotizacion = new Cotizacion(dBMysql1);
+                    List<Cotizacion> responses = cotizacion.GetOrdersInPending();
+                    dBMysql1.CloseConnection();
+                    ResponseList<Cotizacion> responseCot = new ResponseList<Cotizacion> { Code = 0, Description = "Informacion obtenida", Type = "success", Records = responses };
+                    return Ok(responseCot);
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AccessDataSession]
+        public IActionResult DataGetOrdersById(int DocNumEcommerce)
+        {
+            try
+            {
+                using (DBMysql dBMysql1 = new DBMysql("Ecommerce"))
+                {
+                    //open connection ton database ecommerce
+                    dBMysql1.OpenConnection();
+                    //start object cotizaciones with the connection starts 
+                    Cotizacion cotizacion = new Cotizacion(dBMysql1);
+                    bool result = cotizacion.GetById(DocNumEcommerce);
+                    dBMysql1.CloseConnection();
+                    if (result)
+                    {
+                        Response<Cotizacion> responseCot = new Response<Cotizacion> { Code = 0, Description = "Informacion obtenida", Type = "success", Objeto = cotizacion };
+                        return Ok(responseCot);
+                    }
+                    else
+                    {
+                        throw new Exception("No existe el pedido");
+                    }
+                }
+            }
+            catch (DBException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MySqlException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

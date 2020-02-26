@@ -1,46 +1,59 @@
-﻿
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Mis clientes";
 }
-    <div id="app_BussinesPartnerList">
-        <div class="br-section-wrapper">
-            <div class="table-wrapper">
-                <div class="bg-primary" v-if="loading === true && userData == null">
-                    cargando ...
+<div id="app_BussinesPartnerList">
+    <div class="br-section-wrapper">
+        <div class="table-wrapper">
+            <div  v-if="loading === true && userData == null">
+                <div class="d-flex   pos-relative align-items-center">
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1 bg-gray-800"></div>
+                        <div class="sk-child sk-double-bounce2 bg-gray-800"></div>
+                    </div>
                 </div>
-                <div v-if="loading === false && userData != null">
-                    <table class="table display responsive nowrap display compact" id="table_misclientes">
-                        <thead>
-                            <tr>
-                                <th>Codigo</th>
-                                <th>Nombre</th>
-                                <th>Ejecutivo</th>
-                                <th>Activo en ecommerce</th>
-                                <th>Cotizaciones Ecom</th>
-                                <th>Pedidos Proc</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in userData.records">
-                                <td> <a href="#" v-on:click="verCliente(item.cardCode)" title="ver dashboard 360">{{ item.cardCode }}</a> </td>
-                                <td>{{ item.cardName }}</td>
-                                <td>{{ item.splName }}</td>
-                                <td>
-                                    <div v-if="item.isActiveEcomerce === true"><span class="square-8 bg-success mg-r-5 rounded-circle"></span> Activo</div>
-                                    <div v-if="item.isActiveEcomerce === false"><span class="square-8 bg-danger mg-r-5 rounded-circle"></span> Inactivo</div>
-                                </td>
-                                <td><button class="btn btn-sm btn-outline-success" v-on:click="verCotizacionesEcomerce(item.cardCode)" >Ver</button></td>
-                                <td><button class="btn btn-sm btn-outline-success" v-on:click="verPedidosEnProceso(item.cardCode)">Ver</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </div>
+            <div v-if="loading === false && userData != null">
+                <table class="table display responsive nowrap display compact" id="table_misclientes">
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Nombre</th>
+                            <th>Ejecutivo</th>
+                            <th>Activo en ecommerce</th>
+                            <th>Cotizaciones Ecom</th>
+                            <th>Pedidos Proc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in userData.records">
+                            @if (new EcommerceAdmin2.Models.Empleado.Usuario().ValidPermisControlView((int)HttpContextAccessor.HttpContext.Session.GetInt32("USR_IdSplinnet"), new int[] { 19 }))
+                            {
+                                <td> <a href="#" class="btn btn-sm btn-outline-success btn-block" v-on:click="verCliente(item.cardCode)" title="Ver información del cliente">{{ item.cardCode }}</a> </td>
+                            }
+                            else
+                            {
+                                <td> {{ item.cardCode }} </td>
+                            }
+                            <td>{{ item.cardName }}</td>
+                            <td>{{ item.splName }}</td>
+                            <td>
+                                <div v-if="item.isActiveEcomerce === true"><span class="square-8 bg-success mg-r-5 rounded-circle"></span> Activo</div>
+                                <div v-if="item.isActiveEcomerce === false"><span class="square-8 bg-danger mg-r-5 rounded-circle"></span> Inactivo</div>
+                            </td>
+                            <td><button class="btn btn-sm btn-outline-success" v-on:click="verCotizacionesEcomerce(item.cardCode)">Ver</button></td>
+                            <td><button class="btn btn-sm btn-outline-success" v-on:click="verPedidosEnProceso(item.cardCode)">Ver</button></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
 @section Scripts {
-<script>
+    <script>
         var app_login = new Vue({
             el: '#app_BussinesPartnerList',
             data: {
@@ -55,7 +68,7 @@
             async mounted() {
                 await axios.get('./ListUserLoged').then(response => {
                     this.userData = response.data;
-                     this.RecordCound = this.userData.count;
+                    this.RecordCound = this.userData.count;
                     console.log(this.userData);
                 }).catch(error => {
                     console.log(error.response.data);
@@ -64,16 +77,16 @@
             },
             methods: {
                 verCotizacionesEcomerce: function (CardCode) {
-                    window.location = '../Cotizaciones/BussinessPartner/' + CardCode ;
+                    window.location = '../Cotizaciones/BussinessPartner/' + CardCode;
                 },
                 verPedidosEnProceso: function (CardCode) {
-                    window.location = '../Document/BussinessPartner/' + CardCode ;
+                    window.location = '../Document/BussinessPartner/' + CardCode;
                 },
                 verCliente: function (CardCode) {
-                    window.location = './Dashboard360/' + CardCode ;
+                    window.location = '@Url.Action("Show","BussinesPartner")/' + CardCode;
                 }
             }
         })
-</script>
+    </script>
 }
 
