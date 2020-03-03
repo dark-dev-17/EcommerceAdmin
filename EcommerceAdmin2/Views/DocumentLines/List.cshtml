@@ -42,8 +42,8 @@
                             </td>
                             <td class="align-middle">{{ item.dscription }}</td>
                             <td class="align-middle">{{ item.quantity }}</td>
-                            <td class="align-middle">${{ formatPrice(item.price * item.quantity) }}</td>
-                            <td class="align-middle">${{ formatPrice(item.price * item.quantity  +   (item.vatPercent/100) * item.price * item.quantity)}}</td>
+                            <td class="align-middle">${{ formatPrice(item.price) }}</td>
+                            <td class="align-middle">${{ formatPrice(item.price  +   (item.vatPercent/100) * item.price)}}</td>
                             <td class="align-middle">{{ item.currency }}</td>
                         </tr>
                     </tbody>

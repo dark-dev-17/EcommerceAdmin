@@ -109,7 +109,9 @@
                     }).catch(error => {
                         console.log(error);
                     }).finally(() => this.loading = false);
-                    $('#table_documents').DataTable();
+                    $('#table_documents').DataTable({
+                        "order": [[0, 'desc']]
+                    });
                 }
             },
             filters: {

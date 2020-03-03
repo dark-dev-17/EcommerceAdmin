@@ -71,6 +71,12 @@ namespace EcommerceAdmin2.Models.Cotizaciones
                         DocRate = data.IsDBNull(16) ? 0 : data.GetDouble(16);
                         CFDIUser = data.IsDBNull(18) ? "" : data.GetString(18);
                         PorcentDisaccount = data.IsDBNull(19) ? 0 : data.GetInt32(19);
+                        if(DocCur != "USD")
+                        {
+                            DocIva = DocIva * DocRate;
+                            DocTotal = DocTotal * DocRate;
+                            DocSubTotal = DocSubTotal * DocRate;
+                        }
                     }
                     isExists = true;
                 }

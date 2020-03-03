@@ -93,7 +93,9 @@
                 }).catch(error => {
                     console.log(error);
                 }).finally(() => this.loading = false);
-                 $('#DocumentosCotizaciones').DataTable();
+                $('#DocumentosCotizaciones').DataTable({
+                     "order": []
+                });
             },
             methods: {
                 ShowDocumentTracker: function (DocEntry) {
